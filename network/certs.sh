@@ -45,7 +45,7 @@ fabric-ca-client register -d --id.name admin-org --id.secret adminpw --id.type a
 fabric-ca-client register -d --id.name user-org --id.secret clientpw --id.type client -u https://0.0.0.0:7055
 set +x
 
-echo'#peer
+echo '#peer
 NodeOUs:
   Enable: true
   ClientOUIdentifier:

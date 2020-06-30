@@ -1,0 +1,130 @@
+---
+Organizations:
+        - &OrdererOrg
+          Name: ordererOrg
+          ID: ordererMSP
+          MSPDir: ./certs/ordererorg/msp
+          Policies:
+                  Readers:
+                          Type: Signature
+                          Rule: "OR('ordererMSP.member')"
+                  Writers:
+                          Type: Signature
+                          Rule: "OR('ordererMSP.member')"
+                  Admins:
+                          Type: Signature
+                          Rule: "OR('ordererMSP.admin')"
+          OrdererEndpoints:
+                  - orderer:7050
+        - &Org
+          Name: orgMSP
+          ID: orgMSP
+          MSPDir: ./certs/peerorg/msp
+          Policies:
+                  Readers:
+                          Type: Signature
+                          Rule: "OR('orgMSP.member')"
+                  Writers:
+                          Type: Signature
+                          Rule: "OR('orgMSP.admin','orgMSP.client')"
+                  Admins:
+                          Type: Signature
+                          Rule: "OR('orgMSP.admin')"
+                  Endorsement:
+                          Type: Signature
+                          Rule: "OR('orgMSP.peer')"
+          AnchorPeers:
+                  - Host: peer-org
+                    Port: 7051
+
+Capabilities:
+        Channel: &ChannelCapabilities
+                V2_0: true
+        Orderer: &OrdererCapabilities
+                V2_0: true
+        Application: &ApplicationCapabilities
+                V2_0: true
+
+Application: &ApplicationDefaults
+        Organizations:
+
+        Policies:
+                Readers:
+                        Type: ImplicitMeta
+                        Rule: "ANY Readers"
+                Writers:
+                        Type: ImplicitMeta
+                        Rule: "ANY Writers"
+                Admins:
+                        Type: ImplicitMeta
+                        Rule: "ANY Admins"
+                LifecycleEndorsement:
+                        Type: ImplicitMeta
+                        Rule: "ANY Endorsement"
+                Endorsement:
+                        Type: ImplicitMeta
+                        Rule: "ANY Endorsement"
+        Capabilities:
+                <<: *ApplicationCapabilities
+
+Orderer: &OrdererDefaults
+        OrdererType: solo
+        Addresses:
+                - orderer:7050
+        BatchTimeout: 2s
+        BatchSize:
+                MaxMessageCount: 10
+                AbsoluteMaxBytes: 99 MB
+                PreferredMaxBytes: 512 KB
+        Organizations:
+                
+        Policies:
+                Readers:
+                        Type: ImplicitMeta
+                        Rule: "ANY Readers"
+                Writers:
+                        Type: ImplicitMeta
+                        Rule: "ANY Writers"
+                Admins:
+                        Type: ImplicitMeta
+                        Rule: "ANY Admins"
+                BlockValidation:
+                        Type: ImplicitMeta
+                        Rule: "ANY Writers"
+
+Channel: &ChannelDefaults
+        Policies:
+                Readers:
+                        Type: ImplicitMeta
+                        Rule: "ANY Readers"
+                Writers:
+                        Type: ImplicitMeta
+                        Rule: "ANY Writers"
+                Admins:
+                        Type: ImplicitMeta
+                        Rule: "ANY Admins"
+        Capabilities:
+                <<: *ChannelCapabilities
+
+Profiles:
+        OrdererGenesis:
+                <<: *ChannelDefaults
+                Orderer:
+                        <<: *OrdererDefaults
+                        Organizations:
+                                - *OrdererOrg 
+                        Capabilities:
+                                <<: *OrdererCapabilities
+                Consortiums:
+                        SingleORG:
+                                Organizations:
+                                        - *Org
+        OrgChannel:
+                Consortium: SingleORG
+                <<: *ChannelDefaults
+                Application:
+                        <<: *ApplicationDefaults
+                        Organizations:
+                                - *Org
+                        Capabilities:
+                                <<: *ApplicationCapabilities

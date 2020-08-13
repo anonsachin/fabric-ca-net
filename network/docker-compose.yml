@@ -18,7 +18,7 @@ services:
                         - ORDERER_GENERAL_GENESISMETHOD=file
                         - ORDERER_GENERAL_LOCALMSPID=ordererMSP
                         - ORDERER_GENERAL_LOCALMSPDIR=/var/hyperledger/orderer/msp
-                        - ORDERER_GENERAL_TLS_ENABLED=true
+                        - ORDERER_GENERAL_TLS_ENABLED=false
                         - ORDERER_GENERAL_TLS_PRIVATEKEY=/var/hyperledger/orderer/tls/server.key
                         - ORDERER_GENERAL_TLS_CERTIFICATE=/var/hyperledger/orderer/tls/server.crt
                         - ORDERER_GENERAL_TLS_ROOTCAS=[/var/hyperledger/orderer/tls/ca.crt]
@@ -36,7 +36,7 @@ services:
 
         peer-org:
                 container_name: peer-org
-                image: hyperledger/fabric-peer:latest
+                image: peer-ext:2.0.0
                 environment:
                         - CORE_VM_ENDPOINT=unix:///host/var/run/docker.sock
                         - CORE_VM_DOCKER_HOSTCONFIG_NETWORKMODE=network_test
@@ -44,16 +44,16 @@ services:
                         - CORE_PEER_ID=peer-org
                         - CORE_PEER_ADDRESS=peer-org:7051
                         - CORE_PEER_LISTENADDRESS=0.0.0.0:7051
-                        - CORE_PEER_CHAINCODEADDRESS=peer-org:7053
+                        # - CORE_PEER_CHAINCODEADDRESS=peer-org:7053
                         - CORE_PEER_CHAINCODELISTENADDRESS=0.0.0.0:7053
                         - CORE_PEER_LOCALMSPID=orgMSP
-                        - CORE_PEER_TLS_ENABLED=true
+                        - CORE_PEER_TLS_ENABLED=false
                         - CORE_PEER_GOSSIP_USELEADERELECTION=false
                         - CORE_PEER_GOSSIP_ORGLEADER=true
                         - CORE_PEER_TLS_CERT_FILE=/etc/hyperledger/fabric/tls/server.crt
                         - CORE_PEER_TLS_KEY_FILE=/etc/hyperledger/fabric/tls/server.key
                         - CORE_PEER_TLS_ROOTCERT_FILE=/etc/hyperledger/fabric/tls/ca.crt
-                working_dir: /opt/gopath/src/github.com/hyperledger/fabric/peer
+                working_dir: /etc/hyperledger/fabric #/opt/gopath/src/github.com/hyperledger/fabric/peer
                 command: peer node start
                 volumes:
                         - /var/run/:/host/var/run/
@@ -78,7 +78,7 @@ services:
                 - CORE_PEER_ID=cli
                 - CORE_PEER_ADDRESS=peer-org:7051
                 - CORE_PEER_LOCALMSPID=orgMSP
-                - CORE_PEER_TLS_ENABLED=true
+                - CORE_PEER_TLS_ENABLED=false
                 - CORE_PEER_MSPCONFIGPATH=/etc/hyperledger/fabric/msp
                 - CORE_PEER_TLS_CERT_FILE=/etc/hyperledger/fabric/tls/server.crt
                 - CORE_PEER_TLS_KEY_FILE=/etc/hyperledger/fabric/tls/server.key

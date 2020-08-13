@@ -6,11 +6,16 @@ simple network with one ca for tls and two ca's for orderer and peer
 commands for channel creation and join
 --------------------------------------
 * creating channel block
-`` 
+```
 export CHANNEL_NAME="testchannel"
 peer channel create -o orderer:7050 -c $CHANNEL_NAME --ordererTLSHostnameOverride orderer -f ./channel-artifacts/${CHANNEL_NAME}.tx --outputBlock ./channel-artifacts/${CHANNEL_NAME}.block --tls --cafile $CORE_PEER_TLS_ROOTCERT_FILE
-``
+```
 * joining the channel
-`` 
+```
 peer channel join -b ./channel-artifacts/$CHANNEL_NAME.block
-``
+```
+
+```
+jq -n '{"address":"192.168.1.100:7054","dial_timeout": "10s","tls_required": false}' > connection.json
+jq -n '{"path":"","type":"external","label":"mycc"}' > metadata.json
+```

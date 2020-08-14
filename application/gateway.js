@@ -27,7 +27,12 @@ async function getChannel(org,channelName){
         //Getting gateway
         console.log("Getting gateway")
         gateway = new Gateway();
-        await gateway.connect(ccp, { wallet, identity: org, discovery: { enabled: false, asLocalhost: true } });
+        let connectionOption = {
+            identity: identity,
+            discovery: { enabled: false, asLocalhost: true }
+        }
+        console.log("Connecting...")
+        await gateway.connect(ccp,connectionOption);
 
         //Getting the channel
         console.log("Getting channel")
@@ -53,7 +58,6 @@ async function getContract(org,channelName,contractName){
         //Getting user
         const identity = await wallet.get(org)
         errorHandler(identity,"IDENTITY not present")
-        console.log(identity)
 
         //Getting ccp
         console.log("Getting ccp")

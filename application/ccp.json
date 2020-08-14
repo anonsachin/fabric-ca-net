@@ -1,0 +1,29 @@
+{
+    "name":"Network",
+    "version":"1.1",
+    "channels":{
+        "testchannel":{
+            "orderers":["orderer"],
+            "peers":["peer-org"]
+        }
+    },
+    "organizations":{
+        "org":{
+            "mspid":"orgMSP",
+            "peers": ["peer-org"]
+        }
+    },
+    "orderers": {
+        "orderer": {
+            "url":"grpc://localhost:7050",
+            "grpcOptions": {
+                "ssl-target-name-override": "orderer"
+              }
+        }
+    },
+    "peers":{
+        "peer-org": {
+            "url":"grpc://localhost:7051"
+        }
+    }
+}

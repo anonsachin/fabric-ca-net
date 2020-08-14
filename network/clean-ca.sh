@@ -4,6 +4,10 @@ if [ -d certs ]; then
 	rm -r certs
 fi
 
+if [ -d channel-artifacts ]; then
+	rm -r channel-artifacts
+fi
+
 pushd ./ca/tls-ca/
  ./clean-up.sh
  popd

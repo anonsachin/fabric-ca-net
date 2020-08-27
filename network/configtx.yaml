@@ -68,9 +68,13 @@ Application: &ApplicationDefaults
                 <<: *ApplicationCapabilities
 
 Orderer: &OrdererDefaults
-        OrdererType: solo
-        Addresses:
-                - orderer:7050
+        OrdererType: etcdraft
+        EtcdRaft:
+                Consenters:
+                        - Host: orderer
+                          Port: 7050
+                          ClientTLSCert: ./certs/ordererorg/orderer/tls/server.crt
+                          ServerTLSCert: ./certs/ordererorg/orderer/tls/server.crt
         BatchTimeout: 2s
         BatchSize:
                 MaxMessageCount: 10

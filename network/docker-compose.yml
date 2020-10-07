@@ -86,6 +86,7 @@ services:
                 - CORE_PEER_TLS_CERT_FILE=/etc/hyperledger/fabric/tls/server.crt
                 - CORE_PEER_TLS_KEY_FILE=/etc/hyperledger/fabric/tls/server.key
                 - CORE_PEER_TLS_ROOTCERT_FILE=/etc/hyperledger/fabric/tls/ca.crt
+                - ORDERER_CA_CERT=/etc/hyperledger/fabric/orderer-ca.cert
             working_dir: /opt/gopath/src/github.com/hyperledger/fabric/peer
             command: /bin/bash
             volumes:
@@ -93,6 +94,8 @@ services:
                 - ./channel-artifacts:/opt/gopath/src/github.com/hyperledger/fabric/peer/channel-artifacts
                 - ./certs/peerorg/admin/msp:/etc/hyperledger/fabric/msp
                 - ./certs/peerorg/admin/tls:/etc/hyperledger/fabric/tls
+                - ./certs/ordererorg/tlsca/tls-ca.cert:/etc/hyperledger/fabric/orderer-tlsca.cert
+                - ./scripts:/opt/gopath/src/github.com/hyperledger/fabric/peer/scripts
             networks:
                 - test
             depends_on:

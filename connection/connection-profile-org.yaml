@@ -1,0 +1,44 @@
+name: testNet
+description: "Network to test out all features and ideas"
+version: "1.0"
+
+client:
+    organization: Org
+    connection:
+      timeout:
+        peer:
+          endorser: 300
+          eventHub: 300
+          eventReg: 300
+        orderer: 300
+
+channels:
+  testchannel:
+    orderers:
+      - orderer
+    peers:
+      peer-org:
+        endorsingPeer: true
+        chaincodeQuery: true
+        ledgerQuery: true
+        eventSource: true
+
+organizations:
+  Org:
+    mspid: orgMSP
+    peers:
+      - peer-org
+
+orderers:
+  orderer:
+    url: grpcs://localhost:7050
+    grpcOptions:
+      ssl-target-name-override: orderer
+    tlsCACerts:
+      path: /home/sachin/ca-net/network/certs/ordererorg/tlsca/tls-ca.crt
+
+peers:
+  peer-org:
+    url: grpcs://localhost:7051
+    tlsCACerts:
+      path: /home/sachin/ca-net/network/certs/peerorg/tlsca/tls-ca.crt

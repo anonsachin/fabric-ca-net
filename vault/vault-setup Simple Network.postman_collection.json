@@ -1,0 +1,1138 @@
+{
+	"info": {
+		"_postman_id": "a487461c-ad73-45da-a1ec-73cb16076490",
+		"name": "vault-setup Simple Network",
+		"description": "setup of vault pki",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Orderer",
+			"item": [
+				{
+					"name": "create pki",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "b1a53b58-9660-42f3-80a4-dc6a905eb06f",
+								"exec": [
+									"pm.environment.set(\"url\",'127.0.0.1:8200')",
+									"pm.environment.set(\"token\",\"myroot\")",
+									"const org = \"ordererorg\"",
+									"pm.environment.set(\"org\",org)",
+									"const path = `${org}CA`",
+									"pm.environment.set(\"path\",path)"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"id": "c6adee54-a1bb-4b66-8965-b530c9fd80d4",
+								"exec": [
+									"pm.test(\"Status code is 204\", () => pm.response.to.have.status(204) );"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"type\":\"pki\",\n    \"config\": {\n        \"max_lease_ttl\":\"87600h\",\n        \"default_lease_ttl\":\"87600h\"\n    },\n    \"seal_wrap\": true\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://{{url}}/v1/sys/mounts/{{path}}",
+							"protocol": "http",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"v1",
+								"sys",
+								"mounts",
+								"{{path}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "create ca",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "4127b802-618c-4fd1-b20c-acd190e8bf55",
+								"exec": [
+									"let org =pm.environment.get(\"org\")",
+									"let commonName = `${org}CA`",
+									"pm.variables.set(\"commonName\",commonName);",
+									"pm.variables.set(\"size\",256);"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"id": "799d5491-3280-4238-8586-4b8f243f4b0d",
+								"exec": [
+									"pm.test(\"Status code is 200\", () => pm.response.to.be.ok );"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"common_name\": \"{{commonName}}\",\n    \"ttl\": \"87600h\",\n    \"key_type\": \"ec\",\n    \"key_bits\": {{size}},\n    \"organization\": \"{{org}}\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://{{url}}/v1/{{path}}/root/generate/internal",
+							"protocol": "http",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"v1",
+								"{{path}}",
+								"root",
+								"generate",
+								"internal"
+							]
+						},
+						"description": "creating the ca of the pki engine"
+					},
+					"response": []
+				},
+				{
+					"name": "create a role Orderer",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "2fb859c4-839f-4c26-b46f-ab5004f95563",
+								"exec": [
+									"let OU = \"orderer\"",
+									"const org = pm.environment.get(\"org\")",
+									"pm.variables.set(\"roles\",OU)",
+									"let baseDomain = pm.environment.get(\"baseDomain\")",
+									"",
+									"const payload = {",
+									"    server_flag: false,",
+									"    client_flag: false,",
+									"    key_type: \"ec\",",
+									"    key_bits: 256,",
+									"    key_usage: [\"DigitalSignature\"],",
+									"    max_ttl: \"3000h\",",
+									"    generate_lease: true,",
+									"    allow_any_name: true,",
+									"    ou: OU,",
+									"    organization: org,",
+									"    generate_lease: true,",
+									"    allowed_domains: baseDomain,",
+									"    allow_subdomains: true,",
+									"    basic_constraints_valid_for_non_ca: true",
+									"}",
+									"pm.variables.set(\"payload\",JSON.stringify(payload))"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"id": "302972ca-b01a-42d1-b978-10c782d7cb8f",
+								"exec": [
+									"pm.test(\"Status code is 204\", () => pm.response.to.have.status(204) );"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{{payload}}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://{{url}}/v1/{{path}}/roles/{{roles}}",
+							"protocol": "http",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"v1",
+								"{{path}}",
+								"roles",
+								"{{roles}}"
+							]
+						},
+						"description": "creating a role for issuing certs"
+					},
+					"response": []
+				}
+			],
+			"description": "orderer pki setup",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "4b822c4d-03d1-426b-b0f7-a0b38aff3b5b",
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"id": "69845de0-3b57-4e08-8acc-591469d1ff4e",
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				}
+			],
+			"protocolProfileBehavior": {}
+		},
+		{
+			"name": "Orderer TLS",
+			"item": [
+				{
+					"name": "create pki",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "36ad5415-551b-4ed4-8051-610bf7196fd0",
+								"exec": [
+									"let org = pm.environment.get(\"org\")",
+									"const path = `${org}TLSCA`",
+									"pm.environment.set(\"path\",path)"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"id": "52d13f1a-1364-4d4b-b85c-436818843c3d",
+								"exec": [
+									"pm.test(\"Status code is 204\", () => pm.response.to.have.status(204) );"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"type\":\"pki\",\n    \"config\": {\n        \"max_lease_ttl\":\"87600h\",\n        \"default_lease_ttl\":\"87600h\"\n    },\n    \"seal_wrap\": true\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://{{url}}/v1/sys/mounts/{{path}}",
+							"protocol": "http",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"v1",
+								"sys",
+								"mounts",
+								"{{path}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "create ca",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "d0bae36b-c232-4fe9-a806-4cf017b8acd4",
+								"exec": [
+									"let org =pm.environment.get(\"org\")",
+									"let commonName = pm.environment.get(\"path\")",
+									"pm.variables.set(\"commonName\",commonName);",
+									"pm.variables.set(\"size\",256);"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"id": "bbcc3c6b-e218-4f9d-bf40-b2eae7907dff",
+								"exec": [
+									"pm.test(\"Status code is 200\", () => pm.response.to.be.ok );"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"common_name\": \"{{commonName}}\",\n    \"ttl\": \"87600h\",\n    \"key_type\": \"ec\",\n    \"key_bits\": {{size}},\n    \"organization\": \"{{org}}\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://{{url}}/v1/{{path}}/root/generate/internal",
+							"protocol": "http",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"v1",
+								"{{path}}",
+								"root",
+								"generate",
+								"internal"
+							]
+						},
+						"description": "creating the ca of the pki engine"
+					},
+					"response": []
+				},
+				{
+					"name": "create a role Orderer",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "4a9f3b3b-a717-40f1-9e19-3e322db84ddd",
+								"exec": [
+									"let OU = \"orderer\"",
+									"const org = pm.environment.get(\"org\")",
+									"pm.variables.set(\"roles\",OU)",
+									"let baseDomain = \"testnetwork.com\"",
+									"pm.environment.set(\"baseDomain\",baseDomain)",
+									"",
+									"const payload = {",
+									"    server_flag: true,",
+									"    client_flag: true,",
+									"    key_type: \"ec\",",
+									"    key_bits: 256,",
+									"    key_usage: [\"DigitalSignature\", \"KeyAgreement\", \"KeyEncipherment\"],",
+									"    max_ttl: \"3000h\",",
+									"    generate_lease: true,",
+									"    allow_any_name: false,",
+									"    ou: OU,",
+									"    organization: org,",
+									"    generate_lease: true,",
+									"    allowed_domains: baseDomain,",
+									"    allow_subdomains: true,",
+									"    basic_constraints_valid_for_non_ca: true",
+									"}",
+									"pm.variables.set(\"payload\",JSON.stringify(payload))"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"id": "67130b6e-aaf0-4455-b0df-e1cdf535e866",
+								"exec": [
+									"pm.test(\"Status code is 204\", () => pm.response.to.have.status(204) );"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{{payload}}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://{{url}}/v1/{{path}}/roles/{{roles}}",
+							"protocol": "http",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"v1",
+								"{{path}}",
+								"roles",
+								"{{roles}}"
+							]
+						},
+						"description": "creating a role for issuing certs"
+					},
+					"response": []
+				}
+			],
+			"description": "orderer tls pki setup",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "826f163d-5c05-4ca9-b75d-66b7d277548f",
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"id": "11d4cc44-1fe8-4823-b8e2-9cce62dc0630",
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				}
+			],
+			"protocolProfileBehavior": {}
+		},
+		{
+			"name": "Peer-Org",
+			"item": [
+				{
+					"name": "create pki",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "f578fff4-e632-4df3-881e-244da580bfbc",
+								"exec": [
+									"const org = \"peerorg\"",
+									"pm.environment.set(\"org\",org)",
+									"const path = `${org}CA`",
+									"pm.environment.set(\"path\",path)"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"id": "b82eb15c-9b21-4dd7-9ca2-60b59be6a393",
+								"exec": [
+									"pm.test(\"Status code is 204\", () => pm.response.to.have.status(204) );"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"type\":\"pki\",\n    \"config\": {\n        \"max_lease_ttl\":\"87600h\",\n        \"default_lease_ttl\":\"87600h\"\n    },\n    \"seal_wrap\": true\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://{{url}}/v1/sys/mounts/{{path}}",
+							"protocol": "http",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"v1",
+								"sys",
+								"mounts",
+								"{{path}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "create ca",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "4f51d7ad-69d5-411b-a92f-112e71a372dc",
+								"exec": [
+									"let org =pm.environment.get(\"org\")",
+									"let commonName = `${org}CA`",
+									"pm.variables.set(\"commonName\",commonName);",
+									"pm.variables.set(\"size\",256);"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"id": "6953f966-530b-4c94-b1a0-1b5d71c201df",
+								"exec": [
+									"pm.test(\"Status code is 200\", () => pm.response.to.be.ok );"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"common_name\": \"{{commonName}}\",\n    \"ttl\": \"87600h\",\n    \"key_type\": \"ec\",\n    \"key_bits\": {{size}},\n    \"organization\": \"{{org}}\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://{{url}}/v1/{{path}}/root/generate/internal",
+							"protocol": "http",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"v1",
+								"{{path}}",
+								"root",
+								"generate",
+								"internal"
+							]
+						},
+						"description": "creating the ca of the pki engine"
+					},
+					"response": []
+				},
+				{
+					"name": "create a role Peer",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "c6d43f86-ff62-40d5-9c0e-9d3de4a76a60",
+								"exec": [
+									"let OU = \"peer\"",
+									"const org = pm.environment.get(\"org\")",
+									"pm.variables.set(\"roles\",OU)",
+									"let baseDomain = pm.environment.get(\"baseDomain\")",
+									"",
+									"const payload = {",
+									"    server_flag: false,",
+									"    client_flag: false,",
+									"    key_type: \"ec\",",
+									"    key_bits: 256,",
+									"    key_usage: [\"DigitalSignature\"],",
+									"    max_ttl: \"3000h\",",
+									"    generate_lease: true,",
+									"    allow_any_name: true,",
+									"    ou: OU,",
+									"    organization: org,",
+									"    generate_lease: true,",
+									"    allowed_domains: baseDomain,",
+									"    allow_subdomains: true,",
+									"    basic_constraints_valid_for_non_ca: true",
+									"}",
+									"pm.variables.set(\"payload\",JSON.stringify(payload))"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"id": "82a78e0a-65cc-4345-9d02-fb159d5f569f",
+								"exec": [
+									"pm.test(\"Status code is 204\", () => pm.response.to.have.status(204) );"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{{payload}}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://{{url}}/v1/{{path}}/roles/{{roles}}",
+							"protocol": "http",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"v1",
+								"{{path}}",
+								"roles",
+								"{{roles}}"
+							]
+						},
+						"description": "creating a role for issuing certs"
+					},
+					"response": []
+				},
+				{
+					"name": "create a role Admin",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "6f12379a-c29e-4e1c-b4c2-f07bd6adcdef",
+								"exec": [
+									"let OU = \"admin\"",
+									"const org = pm.environment.get(\"org\")",
+									"pm.variables.set(\"roles\",OU)",
+									"let baseDomain = pm.environment.get(\"baseDomain\")",
+									"",
+									"const payload = {",
+									"    server_flag: false,",
+									"    client_flag: false,",
+									"    key_type: \"ec\",",
+									"    key_bits: 256,",
+									"    key_usage: [\"DigitalSignature\"],",
+									"    max_ttl: \"3000h\",",
+									"    generate_lease: true,",
+									"    allow_any_name: true,",
+									"    ou: OU,",
+									"    organization: org,",
+									"    generate_lease: true,",
+									"    allowed_domains: baseDomain,",
+									"    allow_subdomains: true,",
+									"    basic_constraints_valid_for_non_ca: true",
+									"}",
+									"pm.variables.set(\"payload\",JSON.stringify(payload))"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"id": "8bf9e566-1fbd-4d0d-a37e-1361c77337ad",
+								"exec": [
+									"pm.test(\"Status code is 204\", () => pm.response.to.have.status(204) );"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{{payload}}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://{{url}}/v1/{{path}}/roles/{{roles}}",
+							"protocol": "http",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"v1",
+								"{{path}}",
+								"roles",
+								"{{roles}}"
+							]
+						},
+						"description": "creating a role for issuing certs"
+					},
+					"response": []
+				}
+			],
+			"description": "orderer pki setup",
+			"protocolProfileBehavior": {}
+		},
+		{
+			"name": "Peer-Org TLS",
+			"item": [
+				{
+					"name": "create pki",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "b90ba752-fff0-4f32-95c6-3ab6f6ea38b4",
+								"exec": [
+									"let org = pm.environment.get(\"org\")",
+									"const path = `${org}TLSCA`",
+									"pm.environment.set(\"path\",path)"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"id": "56135fc7-6030-4e68-9843-6391d8667a27",
+								"exec": [
+									"pm.test(\"Status code is 204\", () => pm.response.to.have.status(204) );"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"type\":\"pki\",\n    \"config\": {\n        \"max_lease_ttl\":\"87600h\",\n        \"default_lease_ttl\":\"87600h\"\n    },\n    \"seal_wrap\": true\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://{{url}}/v1/sys/mounts/{{path}}",
+							"protocol": "http",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"v1",
+								"sys",
+								"mounts",
+								"{{path}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "create ca",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "36bfebb6-2eaf-4992-b491-76ee0cbc248f",
+								"exec": [
+									"let org =pm.environment.get(\"org\")",
+									"let commonName = pm.environment.get(\"path\")",
+									"pm.variables.set(\"commonName\",commonName);",
+									"pm.variables.set(\"size\",256);"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"id": "23ee3461-1637-44bd-91aa-2471bd53cfd1",
+								"exec": [
+									"pm.test(\"Status code is 200\", () => pm.response.to.be.ok );"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"common_name\": \"{{commonName}}\",\n    \"ttl\": \"87600h\",\n    \"key_type\": \"ec\",\n    \"key_bits\": {{size}},\n    \"organization\": \"{{org}}\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://{{url}}/v1/{{path}}/root/generate/internal",
+							"protocol": "http",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"v1",
+								"{{path}}",
+								"root",
+								"generate",
+								"internal"
+							]
+						},
+						"description": "creating the ca of the pki engine"
+					},
+					"response": []
+				},
+				{
+					"name": "create a role Peer",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "f246edd4-877d-4d79-ab62-1e56b06c9eb1",
+								"exec": [
+									"let OU = \"peer\"",
+									"const org = pm.environment.get(\"org\")",
+									"pm.variables.set(\"roles\",OU)",
+									"let baseDomain = pm.environment.get(\"baseDomain\")",
+									"",
+									"const payload = {",
+									"    server_flag: true,",
+									"    client_flag: true,",
+									"    key_type: \"ec\",",
+									"    key_bits: 256,",
+									"    key_usage: [\"DigitalSignature\", \"KeyAgreement\", \"KeyEncipherment\"],",
+									"    max_ttl: \"3000h\",",
+									"    generate_lease: true,",
+									"    allow_any_name: false,",
+									"    ou: OU,",
+									"    organization: org,",
+									"    generate_lease: true,",
+									"    allowed_domains: baseDomain,",
+									"    allow_subdomains: true,",
+									"    basic_constraints_valid_for_non_ca: true",
+									"}",
+									"pm.variables.set(\"payload\",JSON.stringify(payload))"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"id": "62559442-a611-494a-9979-384c85c4eabb",
+								"exec": [
+									"pm.test(\"Status code is 204\", () => pm.response.to.have.status(204) );"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{{payload}}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://{{url}}/v1/{{path}}/roles/{{roles}}",
+							"protocol": "http",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"v1",
+								"{{path}}",
+								"roles",
+								"{{roles}}"
+							]
+						},
+						"description": "creating a role for issuing certs"
+					},
+					"response": []
+				},
+				{
+					"name": "create a role Admin",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "3c747bca-4856-4882-85f6-900de99c4725",
+								"exec": [
+									"let OU = \"admin\"",
+									"const org = pm.environment.get(\"org\")",
+									"pm.variables.set(\"roles\",OU)",
+									"let baseDomain = pm.environment.get(\"baseDomain\")",
+									"",
+									"const payload = {",
+									"    server_flag: true,",
+									"    client_flag: true,",
+									"    key_type: \"ec\",",
+									"    key_bits: 256,",
+									"    key_usage: [\"DigitalSignature\", \"KeyAgreement\", \"KeyEncipherment\"],",
+									"    max_ttl: \"3000h\",",
+									"    generate_lease: true,",
+									"    allow_any_name: true,",
+									"    ou: OU,",
+									"    organization: org,",
+									"    generate_lease: true,",
+									"    allowed_domains: baseDomain,",
+									"    allow_subdomains: true,",
+									"    basic_constraints_valid_for_non_ca: true",
+									"}",
+									"pm.variables.set(\"payload\",JSON.stringify(payload))"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"id": "6c8d2147-557f-4c51-a792-34e675d8d4e7",
+								"exec": [
+									"pm.test(\"Status code is 204\", () => pm.response.to.have.status(204) );"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{{payload}}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://{{url}}/v1/{{path}}/roles/{{roles}}",
+							"protocol": "http",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"v1",
+								"{{path}}",
+								"roles",
+								"{{roles}}"
+							]
+						},
+						"description": "creating a role for issuing certs"
+					},
+					"response": []
+				}
+			],
+			"description": "peer TLS pki setup",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "9a1d8102-b5bf-4ec7-a519-3f0ff531afe0",
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"id": "c50e6fc8-9f02-4dab-b9d0-fa7cee23084b",
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				}
+			],
+			"protocolProfileBehavior": {}
+		}
+	],
+	"protocolProfileBehavior": {}
+}

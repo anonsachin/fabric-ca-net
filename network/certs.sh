@@ -1,209 +1,113 @@
 #!/bin/bash
 
 if [ ! -d certs ]; then
-	mkdir -p certs/admin/tls-ca/
-	mkdir -p certs/peerorg/
-	mkdir -p certs/ordererorg/
 	mkdir -p certs/peerorg/admin
 	mkdir -p certs/peerorg/peer
-	mkdir -p certs/peerorg/client
 	mkdir -p certs/ordererorg/orderer
 fi
 
-export FABRIC_CA_CLIENT_TLS_CERTFILES=$PWD/ca/tls-ca/ca-cert.pem
-export FABRIC_CA_CLIENT_HOME=$PWD/certs/admin/tls-ca/
-set -x
-fabric-ca-client enroll -d -u https://admin:adminpw@0.0.0.0:7054
-fabric-ca-client register -d --id.name peer-org --id.secret peerpw --id.type peer -u https://0.0.0.0:7054
-fabric-ca-client register -d --id.name admin-org --id.secret adminpw --id.type admin -u https://0.0.0.0:7054
-fabric-ca-client register -d --id.name user-org --id.secret clientpw --id.type client -u https://0.0.0.0:7054
-fabric-ca-client register -d --id.name orderer --id.secret ordererpw --id.type orderer -u https://0.0.0.0:7054
-set +x
+function msp(){
+export ORG=$1
+export ORG_PATH=$PWD/certs/$ORG
 
-echo '#tls 
-NodeOUs:
+echo "##### GENERATING CA CERT ######"
+  mkdir -p $ORG_PATH/msp/cacerts/
+  touch $ORG_PATH/msp/cacerts/ca.pem
+  curl \
+    $( echo "http://127.0.0.1:8200/v1/${ROLE}CA/ca/pem") > $ORG_PATH/msp/cacerts/ca.pem
+
+echo "##### GENERATING TLS CA CERT ######"
+  mkdir -p $ORG_PATH/msp/tlscacerts/
+  touch $ORG_PATH/msp/tlscacerts/ca.pem
+  curl \
+    $( echo "http://127.0.0.1:8200/v1/${ROLE}TLSCA/ca/pem") > $ORG_PATH/msp/tlscacerts/ca.pem
+
+echo 'NodeOUs:
   Enable: true
   ClientOUIdentifier:
-    Certificate: cacerts/0-0-0-0-7054.pem
+    Certificate: cacerts/ca.pem
     OrganizationalUnitIdentifier: client
   PeerOUIdentifier:
-    Certificate: cacerts/0-0-0-0-7054.pem
+    Certificate: cacerts/ca.pem
     OrganizationalUnitIdentifier: peer
   AdminOUIdentifier:
-    Certificate: cacerts/0-0-0-0-7054.pem
+    Certificate: cacerts/ca.pem
     OrganizationalUnitIdentifier: admin
   OrdererOUIdentifier:
-    Certificate: cacerts/0-0-0-0-7054.pem
-    OrganizationalUnitIdentifier: orderer'> $FABRIC_CA_CLIENT_HOME/msp/config.yaml
+    Certificate: cacerts/ca.pem
+    OrganizationalUnitIdentifier: orderer' > $ORG_PATH/msp/config.yaml
+}
 
-export FABRIC_CA_CLIENT_TLS_CERTFILES=$PWD/ca/org-ca/ca-cert.pem
-export FABRIC_CA_CLIENT_HOME=$PWD/certs/peerorg/
-set -x
-fabric-ca-client enroll -d -u https://admin:adminpw@0.0.0.0:7055
-fabric-ca-client register -d --id.name peer-org --id.secret peerpw --id.type peer -u https://0.0.0.0:7055
-fabric-ca-client register -d --id.name admin-org --id.secret adminpw --id.type admin -u https://0.0.0.0:7055
-fabric-ca-client register -d --id.name user-org --id.secret clientpw --id.type client -u https://0.0.0.0:7055
-set +x
+function role() {
+export ORG=$1
+export ROLE=$2
+export CNAME=$3
+export TTL=$4
+echo "#### CREATING THE TEMPLATES FOR MSP ####"
 
-echo '#peer
-NodeOUs:
+export ORG_PATH=$PWD/certs/$ORG/$ROLE
+
+mkdir -p $ORG_PATH/msp/signcerts/
+touch $ORG_PATH/msp/signcerts/cert.tpl
+mkdir -p $ORG_PATH/msp/keystore/
+touch $ORG_PATH/msp/keystore/key.tpl
+mkdir -p $ORG_PATH/msp/cacerts/
+touch $ORG_PATH/msp/cacerts/ca.tpl
+
+echo "{{ with secret \"${ORG}CA/issue/${ROLE}\" \"common_name=${CNAME}\" \"ttl=${TTL}\" \"alt_names=localhost,${CNAME}\" \"ip_sans=127.0.0.1\"}}
+{{ .Data.certificate }}
+{{ end }}" > $ORG_PATH/msp/signcerts/cert.tpl
+
+echo "{{ with secret \"${ORG}CA/issue/${ROLE}\" \"common_name=${CNAME}\" \"ttl=${TTL}\" \"alt_names=localhost,${CNAME}\" \"ip_sans=127.0.0.1\"}}
+{{ .Data.private_key }}
+{{ end }}" > $ORG_PATH/msp/keystore/key.tpl
+
+echo "{{ with secret \"${ORG}CA/issue/${ROLE}\" \"common_name=${CNAME}\" \"ttl=${TTL}\" \"alt_names=localhost,${CNAME}\" \"ip_sans=127.0.0.1\"}}
+{{ .Data.issuing_ca }}
+{{ end }}" > $ORG_PATH/msp/cacerts/ca.tpl
+
+echo 'NodeOUs:
   Enable: true
   ClientOUIdentifier:
-    Certificate: cacerts/0-0-0-0-7055.pem
+    Certificate: cacerts/ca.pem
     OrganizationalUnitIdentifier: client
   PeerOUIdentifier:
-    Certificate: cacerts/0-0-0-0-7055.pem
+    Certificate: cacerts/ca.pem
     OrganizationalUnitIdentifier: peer
   AdminOUIdentifier:
-    Certificate: cacerts/0-0-0-0-7055.pem
+    Certificate: cacerts/ca.pem
     OrganizationalUnitIdentifier: admin
   OrdererOUIdentifier:
-    Certificate: cacerts/0-0-0-0-7055.pem
-    OrganizationalUnitIdentifier: orderer' >  $FABRIC_CA_CLIENT_HOME/msp/config.yaml
+    Certificate: cacerts/ca.pem
+    OrganizationalUnitIdentifier: orderer' > $ORG_PATH/msp/config.yaml
 
-export FABRIC_CA_CLIENT_TLS_CERTFILES=$PWD/ca/ord-ca/ca-cert.pem
-export FABRIC_CA_CLIENT_HOME=$PWD/certs/ordererorg/
-set -x
-fabric-ca-client enroll -d -u https://admin:adminpw@0.0.0.0:7056
-fabric-ca-client register -d --id.name orderer --id.secret ordererpw --id.type orderer -u https://0.0.0.0:7056
-set +x
+echo "#### CREATING THE TEMPLATES FOR TLS ####"
 
-echo '#orderer 
-NodeOUs:
-  Enable: true
-  ClientOUIdentifier:
-    Certificate: cacerts/0-0-0-0-7056.pem
-    OrganizationalUnitIdentifier: client
-  PeerOUIdentifier:
-    Certificate: cacerts/0-0-0-0-7056.pem
-    OrganizationalUnitIdentifier: peer
-  AdminOUIdentifier:
-    Certificate: cacerts/0-0-0-0-7056.pem
-    OrganizationalUnitIdentifier: admin
-  OrdererOUIdentifier:
-    Certificate: cacerts/0-0-0-0-7056.pem
-    OrganizationalUnitIdentifier: orderer' > $FABRIC_CA_CLIENT_HOME/msp/config.yaml
+mkdir -p $ORG_PATH/tls/
+touch $ORG_PATH/tls/cert.tpl
+touch $ORG_PATH/tls/key.tpl
+touch $ORG_PATH/tls/ca.tpl
+  
+echo "{{ with secret \"${ORG}CA/issue/${ROLE}\" \"common_name=${CNAME}\" \"ttl=${TTL}\" \"alt_names=localhost,${CNAME}\" \"ip_sans=127.0.0.1\"}}
+{{ .Data.certificate }}
+{{ end }}" > $ORG_PATH/tls/cert.tpl
 
-echo "####### ENROLLING ORDERER #########"
+echo "{{ with secret \"${ORG}CA/issue/${ROLE}\" \"common_name=${CNAME}\" \"ttl=${TTL}\" \"alt_names=localhost,${CNAME}\" \"ip_sans=127.0.0.1\"}}
+{{ .Data.private_key }}
+{{ end }}" > $ORG_PATH/tls/key.tpl
 
-export FABRIC_CA_CLIENT_HOME=$PWD/certs/ordererorg/orderer
-set -x
-fabric-ca-client enroll -d -u https://orderer:ordererpw@0.0.0.0:7056
-set +x
+echo "{{ with secret \"${ORG}CA/issue/${ROLE}\" \"common_name=${CNAME}\" \"ttl=${TTL}\" \"alt_names=localhost,${CNAME}\" \"ip_sans=127.0.0.1\"}}
+{{ .Data.issuing_ca }}
+{{ end }}" > $ORG_PATH/tls/ca.tpl
 
-export FABRIC_CA_CLIENT_MSPDIR=msp
-echo "moving the config file"
-cp $PWD/certs/ordererorg/msp/config.yaml $FABRIC_CA_CLIENT_HOME/msp/config.yaml
+}
 
-echo "changing the root ca"
-export FABRIC_CA_CLIENT_TLS_CERTFILES=$PWD/ca/tls-ca/ca-cert.pem
 
-export FABRIC_CA_CLIENT_MSPDIR=tls
-set -x
-fabric-ca-client enroll -d -u https://orderer:ordererpw@0.0.0.0:7054 --enrollment.profile tls --csr.hosts orderer --csr.hosts localhost
-set +x
+msp ordererorg
+msp peerorg
 
-cp  $FABRIC_CA_CLIENT_HOME/tls/tlscacerts/* $FABRIC_CA_CLIENT_HOME/tls/ca.crt
-cp  $FABRIC_CA_CLIENT_HOME/tls/signcerts/* $FABRIC_CA_CLIENT_HOME/tls/server.crt
-cp  $FABRIC_CA_CLIENT_HOME/tls/keystore/* $FABRIC_CA_CLIENT_HOME/tls/server.key
+role ordererorg orderer orderer.testnetwork.com 2400h
 
-echo "editing the ord-ca admin tlscerts "
+role peerorg admin admin.testnetwork.com 2400h
 
-mkdir $PWD/certs/ordererorg/msp/tlscacerts
-cp $FABRIC_CA_CLIENT_HOME/tls/ca.crt $PWD/certs/ordererorg/msp/tlscacerts/ca.cert
-
-echo "editing the orderer root tlsca directory"
-
-mkdir $PWD/certs/ordererorg/tlsca
-cp $FABRIC_CA_CLIENT_HOME/tls/ca.crt $PWD/certs/ordererorg/tlsca/tls-ca.crt
-
-echo "editing root ca directory"
-
-mkdir $PWD/certs/ordererorg/ca
-cp $FABRIC_CA_CLIENT_HOME/msp/cacerts/* $PWD/certs/ordererorg/ca/orderer-ca.cert
-
-echo "####### ENROLLING PEER #########"
-
-export FABRIC_CA_CLIENT_TLS_CERTFILES=$PWD/ca/org-ca/ca-cert.pem
-export FABRIC_CA_CLIENT_HOME=$PWD/certs/peerorg/peer
-export FABRIC_CA_CLIENT_MSPDIR=msp
-set -x
-fabric-ca-client enroll -d -u https://peer-org:peerpw@0.0.0.0:7055
-set +x
-
-echo "moving the config file"
-cp $PWD/certs/peerorg/msp/config.yaml $FABRIC_CA_CLIENT_HOME/msp/config.yaml
-
-echo "changing the root ca"
-export FABRIC_CA_CLIENT_TLS_CERTFILES=$PWD/ca/tls-ca/ca-cert.pem
-
-export FABRIC_CA_CLIENT_MSPDIR=tls
-set -x
-fabric-ca-client enroll -d -u https://peer-org:peerpw@0.0.0.0:7054 --enrollment.profile tls --csr.hosts peer-org --csr.hosts localhost
-set +x
-
-cp  $FABRIC_CA_CLIENT_HOME/tls/tlscacerts/* $FABRIC_CA_CLIENT_HOME/tls/ca.crt
-cp  $FABRIC_CA_CLIENT_HOME/tls/signcerts/* $FABRIC_CA_CLIENT_HOME/tls/server.crt
-cp  $FABRIC_CA_CLIENT_HOME/tls/keystore/* $FABRIC_CA_CLIENT_HOME/tls/server.key
-
-echo "editing the ord-ca admin tlscerts "
-
-mkdir $PWD/certs/peerorg/msp/tlscacerts
-cp $FABRIC_CA_CLIENT_HOME/tls/ca.crt $PWD/certs/peerorg/msp/tlscacerts/ca.cert
-
-echo "editing the orderer root tlsca directory"
-
-mkdir $PWD/certs/peerorg/tlsca
-cp $FABRIC_CA_CLIENT_HOME/tls/ca.crt $PWD/certs/peerorg/tlsca/tls-ca.crt
-
-echo "editing root ca directory"
-mkdir $PWD/certs/peerorg/ca
-cp $FABRIC_CA_CLIENT_HOME/msp/cacerts/* $PWD/certs/peerorg/ca/peerorg-ca.cert
-
-echo "####### ENROLLING PEER ADMIN #########"
-
-export FABRIC_CA_CLIENT_TLS_CERTFILES=$PWD/ca/org-ca/ca-cert.pem
-export FABRIC_CA_CLIENT_HOME=$PWD/certs/peerorg/admin
-export FABRIC_CA_CLIENT_MSPDIR=msp
-set -x
-fabric-ca-client enroll -d -u https://admin-org:adminpw@0.0.0.0:7055
-set +x
-
-echo "moving the config file"
-cp $PWD/certs/peerorg/msp/config.yaml $FABRIC_CA_CLIENT_HOME/msp/config.yaml
-
-echo "changing the root ca"
-export FABRIC_CA_CLIENT_TLS_CERTFILES=$PWD/ca/tls-ca/ca-cert.pem
-
-export FABRIC_CA_CLIENT_MSPDIR=tls
-set -x
-fabric-ca-client enroll -d -u https://admin-org:adminpw@0.0.0.0:7054 --enrollment.profile tls --csr.hosts admin-org --csr.hosts localhost
-set +x
-
-cp  $FABRIC_CA_CLIENT_HOME/tls/tlscacerts/* $FABRIC_CA_CLIENT_HOME/tls/ca.crt
-cp  $FABRIC_CA_CLIENT_HOME/tls/signcerts/* $FABRIC_CA_CLIENT_HOME/tls/server.crt
-cp  $FABRIC_CA_CLIENT_HOME/tls/keystore/* $FABRIC_CA_CLIENT_HOME/tls/server.key
-
-echo "####### ENROLLING PEER CLIENT #########"
-
-export FABRIC_CA_CLIENT_TLS_CERTFILES=$PWD/ca/org-ca/ca-cert.pem
-export FABRIC_CA_CLIENT_HOME=$PWD/certs/peerorg/client
-export FABRIC_CA_CLIENT_MSPDIR=msp
-set -x
-fabric-ca-client enroll -d -u https://user-org:clientpw@0.0.0.0:7055
-set +x
-
-echo "moving the config file"
-cp $PWD/certs/peerorg/msp/config.yaml $FABRIC_CA_CLIENT_HOME/msp/config.yaml
-
-echo "changing the root ca"
-export FABRIC_CA_CLIENT_TLS_CERTFILES=$PWD/ca/tls-ca/ca-cert.pem
-
-export FABRIC_CA_CLIENT_MSPDIR=tls
-set -x
-fabric-ca-client enroll -d -u https://user-org:clientpw@0.0.0.0:7054 --enrollment.profile tls --csr.hosts client-org --csr.hosts localhost
-set +x
-
-cp  $FABRIC_CA_CLIENT_HOME/tls/tlscacerts/* $FABRIC_CA_CLIENT_HOME/tls/ca.crt
-cp  $FABRIC_CA_CLIENT_HOME/tls/signcerts/* $FABRIC_CA_CLIENT_HOME/tls/server.crt
-cp  $FABRIC_CA_CLIENT_HOME/tls/keystore/* $FABRIC_CA_CLIENT_HOME/tls/server.key
+role peerorg peer peer.testnetwork.com 2400h

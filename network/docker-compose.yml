@@ -9,7 +9,7 @@ networks:
 
 services:
         orderer:
-                container_name: orderer
+                container_name: orderer.testnetwork.com
                 image: hyperledger/fabric-orderer:latest
                 environment:
                         - FABRIC_LOGGING_SPEC=DEBUG
@@ -38,14 +38,14 @@ services:
                         - test
 
         peer-org:
-                container_name: peer-org
+                container_name: peer.testnetwork.com
                 image: peer-ext:2.0.0
                 environment:
                         - CORE_VM_ENDPOINT=unix:///host/var/run/docker.sock
                         - CORE_VM_DOCKER_HOSTCONFIG_NETWORKMODE=network_test
                         - FABRIC_LOGGING_SPEC=INFO
-                        - CORE_PEER_ID=peer-org
-                        - CORE_PEER_ADDRESS=peer-org:7051
+                        - CORE_PEER_ID=peer.testnetwork.com
+                        - CORE_PEER_ADDRESS=peer.testnetwork.com:7051
                         - CORE_PEER_LISTENADDRESS=0.0.0.0:7051
                         # - CORE_PEER_CHAINCODEADDRESS=peer-org:7053
                         - CORE_PEER_CHAINCODELISTENADDRESS=0.0.0.0:7053
@@ -79,7 +79,7 @@ services:
                 - CORE_VM_ENDPOINT=unix:///host/var/run/docker.sock
                 - FABRIC_LOGGING_SPEC=INFO
                 - CORE_PEER_ID=cli
-                - CORE_PEER_ADDRESS=peer-org:7051
+                - CORE_PEER_ADDRESS=peer.testnetwork.com:7051
                 - CORE_PEER_LOCALMSPID=orgMSP
                 - CORE_PEER_TLS_ENABLED=true
                 - CORE_PEER_MSPCONFIGPATH=/etc/hyperledger/fabric/msp
@@ -94,9 +94,9 @@ services:
                 - ./channel-artifacts:/opt/gopath/src/github.com/hyperledger/fabric/peer/channel-artifacts
                 - ./certs/peerorg/admin/msp:/etc/hyperledger/fabric/msp
                 - ./certs/peerorg/admin/tls:/etc/hyperledger/fabric/tls
-                - ./certs/ordererorg/tlsca/tls-ca.cert:/etc/hyperledger/fabric/orderer-tlsca.cert
+                - ./certs/ordererorg/msp/tlscacerts/ca.pem:/etc/hyperledger/fabric/orderer-ca.cert
                 - ./scripts:/opt/gopath/src/github.com/hyperledger/fabric/peer/scripts
             networks:
                 - test
             depends_on:
-                - peer-org
+                - peer.testnetwork.com

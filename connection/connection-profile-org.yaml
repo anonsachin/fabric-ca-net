@@ -35,10 +35,10 @@ orderers:
     grpcOptions:
       ssl-target-name-override: orderer
     tlsCACerts:
-      path: /home/sachin/ca-net/network/certs/ordererorg/tlsca/tls-ca.crt
+      path: /home/sachin/ca-net/network/certs/ordererorg/msp/tlscacerts/ca.pem
 
 peers:
   peer-org:
     url: grpcs://localhost:7051
     tlsCACerts:
-      path: /home/sachin/ca-net/network/certs/peerorg/tlsca/tls-ca.crt
+      path: /home/sachin/ca-net/network/certs/peerorg/msp/tlscacerts/ca.pem

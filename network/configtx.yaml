@@ -15,7 +15,7 @@ Organizations:
                           Type: Signature
                           Rule: "OR('ordererMSP.admin')"
           OrdererEndpoints:
-                  - orderer:7050
+                  - orderer.testnetwork.com:7050
         - &Org
           Name: orgMSP
           ID: orgMSP
@@ -34,7 +34,7 @@ Organizations:
                           Type: Signature
                           Rule: "OR('orgMSP.peer')"
           AnchorPeers:
-                  - Host: peer-org
+                  - Host: peer.testnetwork.com
                     Port: 7051
 
 Capabilities:
@@ -71,7 +71,7 @@ Orderer: &OrdererDefaults
         OrdererType: etcdraft
         EtcdRaft:
                 Consenters:
-                        - Host: orderer
+                        - Host: orderer.testnetwork.com
                           Port: 7050
                           ClientTLSCert: ./certs/ordererorg/orderer/tls/server.crt
                           ServerTLSCert: ./certs/ordererorg/orderer/tls/server.crt

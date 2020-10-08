@@ -4,7 +4,7 @@ function installChannel(){
     echo "######### Creating the Channel Block ##############"
     set -x
     export CHANNEL_NAME="testchannel"
-    peer channel create -o orderer:7050 -c $CHANNEL_NAME --ordererTLSHostnameOverride orderer -f ../channel-artifacts/${CHANNEL_NAME}.tx --outputBlock ../channel-artifacts/${CHANNEL_NAME}.block --tls --cafile $CORE_PEER_TLS_ROOTCERT_FILE
+    peer channel create -o orderer.testnetwork.com:7050 -c $CHANNEL_NAME --ordererTLSHostnameOverride orderer.testnetwork.com -f ../channel-artifacts/${CHANNEL_NAME}.tx --outputBlock ../channel-artifacts/${CHANNEL_NAME}.block --tls --cafile $ORDERER_CA_CERT
     set +x
 
     echo "######### Joining the Channel ##############"
@@ -20,6 +20,6 @@ function anchorPeerUpdate(){
     # DEPENDENT ON CHANNEL_NAME
     echo "######### Updating the Anchor Peer ##############"
     set -x
-    peer channel update -o orderer:7050 -c $CHANNEL_NAME --ordererTLSHostnameOverride orderer -f ../channel-artifacts/${ORG}.tx  --tls --cafile $CORE_PEER_TLS_ROOTCERT_FILE
+    peer channel update -o orderer.testnetwork.com:7050 -c $CHANNEL_NAME --ordererTLSHostnameOverride orderer.testnetwork.com -f ../channel-artifacts/${ORG}.tx  --tls --cafile $ORDERER_CA_CERT
     set +x
 }

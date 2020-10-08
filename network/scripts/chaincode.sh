@@ -28,8 +28,8 @@ function installAndApprove(){
     set -x
     peer lifecycle chaincode queryinstalled
     export CC_PACKAGE_ID=$(peer lifecycle chaincode queryinstalled | grep Package | cut -d \  -f 3 | cut -d , -f 1)
-    peer lifecycle chaincode approveformyorg -o orderer:7050 --ordererTLSHostnameOverride orderer --channelID $CHANNEL_NAME --name cpu --version 1.0 --package-id $CC_PACKAGE_ID --sequence 1 \
---tls --cafile $CORE_PEER_TLS_ROOTCERT_FILE
+    peer lifecycle chaincode approveformyorg -o orderer.testnetwork.com:7050 --ordererTLSHostnameOverride orderer.testnetwork.com --channelID $CHANNEL_NAME --name cpu --version 1.0 --package-id $CC_PACKAGE_ID --sequence 1 \
+--tls --cafile $ORDERER_CA_CERT
     set +x
 }
 
@@ -38,8 +38,8 @@ function commitChanicode(){
 
     set -x
     peer lifecycle chaincode checkcommitreadiness --channelID $CHANNEL_NAME --name cpu --version 1.0 --sequence 1 --output json
-    peer lifecycle chaincode commit -o orderer:7050 --ordererTLSHostnameOverride orderer --channelID $CHANNEL_NAME --name cpu --version 1.0 --sequence 1 \
---tls --cafile $CORE_PEER_TLS_ROOTCERT_FILE
+    peer lifecycle chaincode commit -o orderer.testnetwork.com:7050 --ordererTLSHostnameOverride orderer.testnetwork.com --channelID $CHANNEL_NAME --name cpu --version 1.0 --sequence 1 \
+--tls --cafile $ORDERER_CA_CERT
     set +x
 }
 

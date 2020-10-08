@@ -8,7 +8,7 @@ commands for channel creation and join
 * creating channel block
 ```
     export CHANNEL_NAME="testchannel"
-    peer channel create -o orderer:7050 -c $CHANNEL_NAME --ordererTLSHostnameOverride orderer -f ./channel-artifacts/${CHANNEL_NAME}.tx --outputBlock ./channel-artifacts/${CHANNEL_NAME}.block --tls --cafile $CORE_PEER_TLS_ROOTCERT_FILE
+    peer channel create -o orderer:7050 -c $CHANNEL_NAME --ordererTLSHostnameOverride orderer.testnetwork.com -f ./channel-artifacts/${CHANNEL_NAME}.tx --outputBlock ./channel-artifacts/${CHANNEL_NAME}.block --tls --cafile $CORE_PEER_TLS_ROOTCERT_FILE
 ```
 The TLS CA is same for all participants hence you can use `$CORE_PEER_TLS_ROOTCERT_FILE` or `$ORDERER_CA_CERT` as they are the same cert. `ORDERER_CA_CERT` defined by me in the docker-compose.yml file
 
@@ -51,5 +51,5 @@ without tls commands for more detail look at - [https://hyperledger-fabric.readt
 * For tls add
 ```
     --tls --cafile $<root ca cert file for orderer>
-    optional: -ordererTLSHostnameOverride <orderer name>
+    optional: -ordererTLSHostnameOverride <orderer name> <example => orderer.testnetwork.com>
 ```

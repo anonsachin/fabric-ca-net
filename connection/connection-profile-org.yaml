@@ -33,14 +33,12 @@ orderers:
   orderer:
     url: grpcs://localhost:7050
     grpcOptions:
-      ssl-target-name-override: orderer.testnetwork.com
+      ssl-target-name-override: orderer
     tlsCACerts:
       path: /home/sachin/ca-net/network/certs/ordererorg/msp/tlscacerts/ca.pem
 
 peers:
   peer-org:
     url: grpcs://localhost:7051
-    grpcOptions:
-      ssl-target-name-override: peer.testnetwork.com
     tlsCACerts:
       path: /home/sachin/ca-net/network/certs/peerorg/msp/tlscacerts/ca.pem

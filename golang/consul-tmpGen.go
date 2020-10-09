@@ -12,7 +12,7 @@ import (
 func TemplateGen(a string, cert string, role string, org string) string {
 	a = strings.Replace(a, "ORG", org, 1)
 	a = strings.Replace(a, "ROLE", role, 1)
-	a = strings.Replace(a, "CNAME", "peer.service.consul", 2)
+	a = strings.Replace(a, "CNAME", role+".service.consul", 2)
 	a = strings.Replace(a, "TTL", "24h", 1)
 	a = strings.Replace(a, "CERT", cert, 1)
 	return a

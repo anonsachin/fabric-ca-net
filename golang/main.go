@@ -9,6 +9,7 @@ import (
 func main() {
 	//Setting up the flags
 	tmpFile := flag.String("template", "template.tpl", "Used to get the template file")
+	tlsTmpFile := flag.String("tls_template", "tlstemplate.tpl", "Used to get the template file")
 	outDir := flag.String("out_dir", "./NewOrg/", "Used to get the directory for certs of the new org")
 	newOrg := flag.String("new_org", "NewOrg", "Used to specify the new org name")
 	role := flag.String("role", "peer", "Used to specify the role of the certs")
@@ -20,6 +21,12 @@ func main() {
 	if err != nil {
 		panic("The file error ==> " + err.Error())
 	}
+	//Reading the TLS Template
+	fmt.Printf("The template file from %s \n", *tmpFile)
+	tlsFile, err := ioutil.ReadFile(*tlsTmpFile)
+	if err != nil {
+		panic("The file error ==> " + err.Error())
+	}
 	//Genrating the folder structure and templates
-	ConsulTempGen(string(file), *outDir, *role, *newOrg)
+	ConsulTempGen(string(file),string(tlsFile), *outDir, *role, *newOrg)
 }

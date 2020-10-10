@@ -3,9 +3,9 @@ package main
 import (
 	"flag"
 	"fmt"
+	"io/ioutil"
 	"os"
 	"path/filepath"
-	"io/ioutil"
 )
 
 func main() {
@@ -31,15 +31,15 @@ func main() {
 		panic("The file error ==> " + err.Error())
 	}
 	//Genrating the folder structure and templates
-	ConsulTempGen(string(file),string(tlsFile), *outDir, *role, *newOrg)
+	ConsulTempGen(string(file), string(tlsFile), *outDir, *role, *newOrg)
 
 	//Getting the MSP's
-	mspCa, tlsCa := getCaCert(*vaultHost,*newOrg)
+	mspCa, tlsCa := getCaCert(*vaultHost, *newOrg)
 	//Creating the Dirctory of MSP CA
 	path := filepath.Join(*outDir, "msp/cacerts")
 	os.MkdirAll(path, os.ModePerm)
 	//Writing to file
-	path = filepath.Join(path,"ca.pem")
+	path = filepath.Join(path, "ca.pem")
 	err = ioutil.WriteFile(path, mspCa, 0644)
 	if err != nil {
 		_ = fmt.Errorf("Did not file %s", path)
@@ -48,7 +48,7 @@ func main() {
 	path = filepath.Join(*outDir, "msp/tlscacerts")
 	os.MkdirAll(path, os.ModePerm)
 	//Writing to file
-	path = filepath.Join(path,"ca.pem")
+	path = filepath.Join(path, "ca.pem")
 	err = ioutil.WriteFile(path, tlsCa, 0644)
 	if err != nil {
 		_ = fmt.Errorf("Did not file %s", path)

@@ -38,7 +38,7 @@ func ConsulTempGen(temp string, tlsTemp string, outDir string, role string, org 
 		//Creating the Dirctory
 		path = filepath.Join(outDir, role, destinations[i])
 		os.MkdirAll(path, os.ModePerm)
-		//The Output 
+		//The Output
 		fmt.Printf("The MSP output ==> \n %v:%v \n", path, TemplateGen(temp, certs[i], role, org))
 		//Writing the output to MSP
 		tempBytes := []byte(TemplateGen(temp, certs[i], role, org))

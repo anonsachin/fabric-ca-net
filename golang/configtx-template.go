@@ -34,10 +34,16 @@ func generateOrgConfig(org string){
         panic(lookErr)
 	}
 
+	//Setting the PATH
+	os.Setenv("FABRIC_CFG_PATH",os.Getenv("PWD"))
+
 	env := os.Environ()
 
-	args := []string{"bash","-c","./addOrg.sh "+org}
-	fmt.Printf("The command is %s",args)
+	// The command to run
+	command  := "configtxgen -printOrg "+org+" > "+org+".json"
+
+	args := []string{"bash","-c", command}
+
 	execErr := syscall.Exec(binary, args, env)
     if execErr != nil {
         panic(execErr)

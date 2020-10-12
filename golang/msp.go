@@ -7,7 +7,7 @@ import (
 	"net/url"
 )
 
-func getCaUrl(host string, org string, tls bool) string {
+func getCaURL(host string, org string, tls bool) string {
 	//Getting the base
 	u, _ := url.ParseRequestURI(host)
 	//Assigning the path
@@ -22,7 +22,7 @@ func getCaUrl(host string, org string, tls bool) string {
 
 func getCaCert(host string, org string) ([]byte, []byte) {
 	//MSP CA
-	mspReq, err := http.Get(getCaUrl(host, org, false))
+	mspReq, err := http.Get(getCaURL(host, org, false))
 	if err != nil {
 		_ = fmt.Errorf("The request Failed becaues %s", err.Error())
 	}
@@ -40,7 +40,7 @@ func getCaCert(host string, org string) ([]byte, []byte) {
 	}
 
 	//TLS CA
-	tlsReq, err := http.Get(getCaUrl(host, org, true))
+	tlsReq, err := http.Get(getCaURL(host, org, true))
 	if err != nil {
 		_ = fmt.Errorf("The request Failed becaues %s", err.Error())
 	}

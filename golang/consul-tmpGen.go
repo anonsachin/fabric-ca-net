@@ -1,3 +1,4 @@
+
 package main
 
 import (
@@ -55,7 +56,7 @@ func ConsulTempGen(temp string, tlsTemp string, outDir string, role string, org 
 		path = filepath.Join(path, destFile[i])
 		err = ioutil.WriteFile(path, tempBytes, 0644)
 		if err != nil {
-			_ = fmt.Errorf("Did not file %s", path)
+			_ = fmt.Errorf("Did not create file at %s", path)
 		}
 	}
 }

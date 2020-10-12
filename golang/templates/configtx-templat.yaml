@@ -3,12 +3,12 @@ Organizations:
     - &ORG
         # DefaultOrg defines the organization which is used in the sampleconfig
         # of the fabric.git development environment
-        Name: ORGMSP
+        Name: ORG
 
         # ID to load the MSP definition as
         ID: ORGMSP
 
-        MSPDir: ../organizations/peerOrganizations/ORG.example.com/msp
+        MSPDir: PATH/msp
 
         Policies:
             Readers:

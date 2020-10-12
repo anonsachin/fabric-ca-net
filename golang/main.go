@@ -53,7 +53,8 @@ func main() {
 	}
 
 	if *configtxReq {
-		configTemplate(*configtxFile,*newOrg)
+		configTemplate(*configtxFile,*newOrg,*outDir)
+		generateOrgConfig(*newOrg)
 	}
 
 	dirStatus(*outDir)

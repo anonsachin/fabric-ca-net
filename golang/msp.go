@@ -1,6 +1,8 @@
 package main
 
 import (
+	"syscall"
+	"os/exec"
 	"os"
 	"path/filepath"
 	"fmt"
@@ -62,6 +64,7 @@ func getCaCert(host string, org string) ([]byte, []byte) {
 	return body, bodytls
 }
 
+// CreateMSP gets the ca's and stores them in the right place
 func CreateMSP(vaultHost string, newOrg string, outDir string){
 		//Getting the MSP's
 		mspCa, tlsCa := getCaCert(vaultHost, newOrg)
@@ -83,4 +86,26 @@ func CreateMSP(vaultHost string, newOrg string, outDir string){
 		if err != nil {
 			_ = fmt.Errorf("Did not file %s", path)
 		}
+}
+
+// GenCerts to genrate the certs
+func GenCerts(consulPath string){
+	// Getting configtxgen
+	binary, lookErr := exec.LookPath("bash")
+    if lookErr != nil {
+        panic(lookErr)
+	}
+	// ENV for exec
+	env := os.Environ()
+
+	// The command to run
+
+	command  := "consul-template -config "+consulPath+" -once"
+
+	args := []string{"bash","-c", command}
+
+	execErr := syscall.Exec(binary, args, env)
+    if execErr != nil {
+        panic(execErr)
+    }
 }

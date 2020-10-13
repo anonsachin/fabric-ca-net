@@ -1,5 +1,5 @@
 certs:
-	go build . && ./main && ./main -role=admin -msp=false -configtx_req=true
+	go build . && ./main && ./main -consul_template_path=consul-template-admin.hcl -role=admin -msp=false -configtx_req=true
 
 clean:
 	rm -r main configtx.yaml NewOrg.json consul-template-*.hcl NewOrg/

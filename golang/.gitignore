@@ -2,3 +2,4 @@ NewOrg/
 main
 configtx.yaml
 NewOrg.json
+consul-template-*

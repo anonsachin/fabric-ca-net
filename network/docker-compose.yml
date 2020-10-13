@@ -96,7 +96,8 @@ services:
                 - ./certs/peerorg/admin/tls:/etc/hyperledger/fabric/tls
                 - ./certs/ordererorg/msp/tlscacerts/ca.pem:/etc/hyperledger/fabric/orderer-ca.cert
                 - ./scripts:/opt/gopath/src/github.com/hyperledger/fabric/peer/scripts
+                - ../golang:/opt/gopath/src/addorg
             networks:
                 - test
             depends_on:
-                - peer.testnetwork.com
+                - peer-org

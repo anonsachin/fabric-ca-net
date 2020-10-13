@@ -1,6 +1,8 @@
 package main
 
 import (
+	"os"
+	"path/filepath"
 	"fmt"
 	"io/ioutil"
 	"net/http"
@@ -58,4 +60,27 @@ func getCaCert(host string, org string) ([]byte, []byte) {
 	}
 
 	return body, bodytls
+}
+
+func CreateMSP(vaultHost string, newOrg string, outDir string){
+		//Getting the MSP's
+		mspCa, tlsCa := getCaCert(vaultHost, newOrg)
+		//Creating the Dirctory of MSP CA
+		path := filepath.Join(outDir, "msp/cacerts")
+		os.MkdirAll(path, os.ModePerm)
+		//Writing to file
+		path = filepath.Join(path, "ca.pem")
+		err := ioutil.WriteFile(path, mspCa, 0644)
+		if err != nil {
+			_ = fmt.Errorf("Did not file %s", path)
+		}
+		//Creating the Dirctory of TLS CA
+		path = filepath.Join(outDir, "msp/tlscacerts")
+		os.MkdirAll(path, os.ModePerm)
+		//Writing to file
+		path = filepath.Join(path, "ca.pem")
+		err = ioutil.WriteFile(path, tlsCa, 0644)
+		if err != nil {
+			_ = fmt.Errorf("Did not file %s", path)
+		}
 }

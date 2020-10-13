@@ -20,7 +20,23 @@ func TemplateGen(a string, cert string, role string, org string) string {
 }
 
 //ConsulTempGen Generate template
-func ConsulTempGen(temp string, tlsTemp string, outDir string, role string, org string) {
+func ConsulTempGen(tempFile string, tlsTempFile string, outDir string, role string, org string) {
+	//Reading the Template
+	fmt.Printf("The template file from %s \n", tempFile)
+	tempBytes, err := ioutil.ReadFile(tempFile)
+	if err != nil {
+		panic("The file error ==> " + err.Error())
+	}
+	// Conserting to string
+	temp := string(tempBytes)
+	//Reading the TLS Template
+	fmt.Printf("The template file from %s \n", tlsTempFile)
+	tlsTempBytes, err := ioutil.ReadFile(tlsTempFile)
+	if err != nil {
+		panic("The file error ==> " + err.Error())
+	}
+	// Conserting to string
+	tlsTemp := string(tlsTempBytes)
 	//Showing the template
 	fmt.Printf("The MSP Template ==> \n %s \n", temp)
 	fmt.Printf("The TLS Template ==> \n %s \n", tlsTemp)

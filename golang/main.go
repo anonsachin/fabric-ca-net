@@ -1,55 +1,21 @@
 package main
 
 import (
-	"syscall"
-	"os/exec"
 	"flag"
-	"fmt"
-	"io/ioutil"
-	"os"
-	"path/filepath"
 )
 
 func main() {
 	//Setting up the flags
-	tmpFile, tlsTmpFile, outDir, newOrg, vaultHost, role, configtxFile, msp, configtxReq := getFlags()
+	basePath, consulTemp, tmpFile, tlsTmpFile, outDir, newOrg, vaultHost, role, configtxFile, msp, configtxReq := getFlags()
 
-	//Reading the Template
-	fmt.Printf("The template file from %s \n", *tmpFile)
-	file, err := ioutil.ReadFile(*tmpFile)
-	if err != nil {
-		panic("The file error ==> " + err.Error())
-	}
-	//Reading the TLS Template
-	fmt.Printf("The template file from %s \n", *tmpFile)
-	tlsFile, err := ioutil.ReadFile(*tlsTmpFile)
-	if err != nil {
-		panic("The file error ==> " + err.Error())
-	}
 	//Genrating the folder structure and templates
-	ConsulTempGen(string(file), string(tlsFile), *outDir, *role, *newOrg)
+	ConsulTempGen(*tmpFile, *tlsTmpFile, *outDir, *role, *newOrg)
+
+	//  Genrating consul template
+	configConsulTemplate(*consulTemp,*vaultHost,*basePath,*newOrg,*role)
 
 	if *msp {
-		//Getting the MSP's
-		mspCa, tlsCa := getCaCert(*vaultHost, *newOrg)
-		//Creating the Dirctory of MSP CA
-		path := filepath.Join(*outDir, "msp/cacerts")
-		os.MkdirAll(path, os.ModePerm)
-		//Writing to file
-		path = filepath.Join(path, "ca.pem")
-		err = ioutil.WriteFile(path, mspCa, 0644)
-		if err != nil {
-			_ = fmt.Errorf("Did not file %s", path)
-		}
-		//Creating the Dirctory of TLS CA
-		path = filepath.Join(*outDir, "msp/tlscacerts")
-		os.MkdirAll(path, os.ModePerm)
-		//Writing to file
-		path = filepath.Join(path, "ca.pem")
-		err = ioutil.WriteFile(path, tlsCa, 0644)
-		if err != nil {
-			_ = fmt.Errorf("Did not file %s", path)
-		}
+		CreateMSP(*vaultHost,*newOrg,*outDir)
 	}
 
 	if *configtxReq {
@@ -57,30 +23,14 @@ func main() {
 		generateOrgConfig(*newOrg)
 	}
 
-	dirStatus(*outDir)
-
 }
 
-func dirStatus(outDir string){
-	binary, lookErr := exec.LookPath("tree")
-    if lookErr != nil {
-        panic(lookErr)
-	}
-	
-	args := []string{"tree", outDir}
-
-	env := os.Environ()
-
-	execErr := syscall.Exec(binary, args, env)
-    if execErr != nil {
-        panic(execErr)
-    }
-}
-
-func getFlags() (*string, *string, *string, *string, *string, *string, *string, *bool, *bool){
+func getFlags() (* string, * string, *string, *string, *string, *string, *string, *string, *string, *bool, *bool){
 	//Setting up the flags
-	tmpFile := flag.String("template", "templates/template.tpl", "Used to get the template file")
-	tlsTmpFile := flag.String("tls_template", "templates/tlstemplate.tpl", "Used to get the template file")
+	basePath := flag.String("base_path", "/home/sachin/ca-net/golang", "Used to get the base path for consul-template")
+	consulTemp := flag.String("consul_template", "templates/consul-template.hcl", "Used to get the template file for consul-template")
+	tmpFile := flag.String("template", "templates/template.tpl", "Used to get the template file for MSP")
+	tlsTmpFile := flag.String("tls_template", "templates/tlstemplate.tpl", "Used to get the template file for TLS")
 	outDir := flag.String("out_dir", "./NewOrg/", "Used to get the directory for certs of the new org")
 	newOrg := flag.String("new_org", "NewOrg", "Used to specify the new org name")
 	vaultHost := flag.String("vault_host", "http://127.0.0.1:8200", "Used to specify the vautl http ednpoint, Default = http://127.0.0.1:8200")
@@ -91,5 +41,5 @@ func getFlags() (*string, *string, *string, *string, *string, *string, *string, 
 	//Getting there values
 	flag.Parse()
 
-	return tmpFile, tlsTmpFile, outDir, newOrg, vaultHost, role, configtxFile, msp, configtxReq
+	return basePath, consulTemp, tmpFile, tlsTmpFile, outDir, newOrg, vaultHost, role, configtxFile, msp, configtxReq
 }

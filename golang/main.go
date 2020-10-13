@@ -1,38 +1,58 @@
 package main
 
 import (
-	"fmt"
 	"flag"
+	"fmt"
 )
 
 func main() {
 	//Setting up the flags
 	consulTempPath, basePath, consulTemp, tmpFile, tlsTmpFile, outDir, newOrg, vaultHost, role, configtxFile, msp, configtxReq := getFlags()
 
+	if *configtxReq {
+		fmt.Println("Generating the Configs")
+		configTemplate(*configtxFile, *newOrg, *outDir)
+		generateOrgConfig(*newOrg)
+		fmt.Println("TESTING !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+		return
+	}
+
 	//Genrating the folder structure and templates
 	ConsulTempGen(*tmpFile, *tlsTmpFile, *outDir, *role, *newOrg)
 
 	//  Genrating consul template
-	configConsulTemplate(*consulTemp,*vaultHost,*basePath,*newOrg,*role)
-	
+	configConsulTemplate(*consulTemp, *vaultHost, *basePath, *newOrg, *role)
+
 	// Generate The MSP
 	if *msp {
-		CreateMSP(*vaultHost,*newOrg,*outDir)
+		CreateMSP(*vaultHost, *newOrg, *outDir)
 	}
-	fmt.Println("the Config status",*configtxReq)
-	// Generate the config JSON
-	if *configtxReq {
-		fmt.Println("Generating the Configs")
-		configTemplate(*configtxFile,*newOrg,*outDir)
-		generateOrgConfig(*newOrg)
-	}
+	
+	
+	// Running the consul-template seperatly ass it stops execution after completion
+	sep := make(chan string)
 
-	// Generate Certs from Template 
-	GenCerts(*consulTempPath) // This will Stop the execution flow
+	go func(){
+		fmt.Println("Generating template ==> ", *consulTempPath)
+		// Generate Certs from Template
+		GenCerts(*consulTempPath) // This will Stop the execution flow
+		sep <- "done"
+	}()
+
+	// Generate the config JSON
+	fmt.Println("the Config status", *configtxReq)
+	// conf := make(chan string)
+
+	status:= <-sep
+	// confStatus := <-conf
+	
+	fmt.Printf("The completion Status of consul-template %v \n",status)
+
+	// fmt.Printf("The completion Status of configtxgen %v \n",confStatus)
 
 }
 
-func getFlags() (* string, * string, * string, *string, *string, *string, *string, *string, *string, *string, *bool, *bool){
+func getFlags() (*string, *string, *string, *string, *string, *string, *string, *string, *string, *string, *bool, *bool) {
 	//Setting up the flags
 	consulTempPath := flag.String("consul_template_path", "consul-template-peer.hcl", "Used to get the path for consul-template")
 	basePath := flag.String("base_path", "/home/sachin/ca-net/golang", "Used to get the base path for consul-template")
@@ -43,8 +63,8 @@ func getFlags() (* string, * string, * string, *string, *string, *string, *strin
 	newOrg := flag.String("new_org", "NewOrg", "Used to specify the new org name")
 	vaultHost := flag.String("vault_host", "http://127.0.0.1:8200", "Used to specify the vautl http ednpoint, Default = http://127.0.0.1:8200")
 	role := flag.String("role", "peer", "Used to specify the role of the certs")
-	configtxFile := flag.String("configtx","templates/configtx-templat.yaml","To Generate the config tx for new org")
-	msp := flag.Bool("msp",true,"To generate msp")
+	configtxFile := flag.String("configtx", "templates/configtx-templat.yaml", "To Generate the config tx for new org")
+	msp := flag.Bool("msp", true, "To generate msp")
 	configtxReq := flag.Bool("configtx_req", false, "To Create the configtx.yaml")
 	//Getting there values
 	flag.Parse()

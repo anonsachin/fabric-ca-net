@@ -1,13 +1,18 @@
 New Org Binary
 ==============
 
-* Need to set **Vault server address to** `192.168.1.102` Your computer's ip
+* Need to set **Vault server address to** `192.168.1.102` Your computer's ip for calling vault from inside the cli.
+
+* Edit the Collection in postman to cutomize the org found in `./collection`.
 
 * This is run inside the GOPATH of the network cli container
 
 * To create the required Directory tree and templates for a new org
+
 * **command** ==> `go build . && ./main && ./main -role=admin`
+
 * **output Directory Structure Of Default Values**
+
 * Running **consul-template** Download Link **==>** [consul-template version 0.19.5](http://releases.hashicorp.com/consul-template/0.19.5/consul-template_0.19.5_linux_amd64.zip)
 ```
 NewOrg

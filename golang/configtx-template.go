@@ -6,7 +6,6 @@ import (
 	"os"
 	"os/exec"
 	"strings"
-	"syscall"
 )
 
 func configTemplate(tempPath string, org string, path string) {
@@ -38,19 +37,32 @@ func generateOrgConfig(org string) {
 	//Setting the PATH
 	os.Setenv("FABRIC_CFG_PATH", os.Getenv("PWD"))
 
-	env := os.Environ()
-
 	// The command to run
-	command := "configtxgen -printOrg " + org + " > " + org + ".json"
-	fmt.Println("Exec ==> ",command)
+	args:= "configtxgen -printOrg " + org + " > " + org + ".json"
+	cmd := exec.Command(binary,"-c",args)
+	cmd.Stdin = os.Stdin
+	cmd.Stderr = os.Stderr
+	cmd.Stdout = os.Stdout
 
-	args := []string{"bash", "-c", command}
+	err := cmd.Run()
 
-	execErr := syscall.Exec(binary, args, env)
-	fmt.Println("Success exec ==> ",command)
-	if execErr != nil {
-		panic(execErr)
+	if err!= nil {
+		panic(err)
 	}
+
+	// env := os.Environ()
+
+	// // The command to run
+	// command := "configtxgen -printOrg " + org + " > " + org + ".json"
+	// fmt.Println("Exec ==> ",command)
+
+	// args := []string{"bash", "-c", command}
+
+	// execErr := syscall.Exec(binary, args, env)
+	// fmt.Println("Success exec ==> ",command)
+	// if execErr != nil {
+	// 	panic(execErr)
+	// }
 }
 
 func configConsulTemplate(tempPath string, vault string, path string, org string, role string) {

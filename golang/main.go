@@ -9,14 +9,6 @@ func main() {
 	//Setting up the flags
 	consulTempPath, basePath, consulTemp, tmpFile, tlsTmpFile, outDir, newOrg, vaultHost, role, configtxFile, msp, configtxReq := getFlags()
 
-	if *configtxReq {
-		fmt.Println("Generating the Configs")
-		configTemplate(*configtxFile, *newOrg, *outDir)
-		generateOrgConfig(*newOrg)
-		fmt.Println("TESTING !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
-		return
-	}
-
 	//Genrating the folder structure and templates
 	ConsulTempGen(*tmpFile, *tlsTmpFile, *outDir, *role, *newOrg)
 
@@ -27,8 +19,7 @@ func main() {
 	if *msp {
 		CreateMSP(*vaultHost, *newOrg, *outDir)
 	}
-	
-	
+
 	// Running the consul-template seperatly ass it stops execution after completion
 	sep := make(chan string)
 
@@ -41,10 +32,15 @@ func main() {
 
 	// Generate the config JSON
 	fmt.Println("the Config status", *configtxReq)
-	// conf := make(chan string)
+
+	if *configtxReq {
+		fmt.Println("Generating the Configs")
+		configTemplate(*configtxFile, *newOrg, *outDir)
+		generateOrgConfig(*newOrg)
+		fmt.Println("Completed generating the Configs ")
+	}
 
 	status:= <-sep
-	// confStatus := <-conf
 	
 	fmt.Printf("The completion Status of consul-template %v \n",status)
 

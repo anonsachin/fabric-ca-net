@@ -8,7 +8,6 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
-	"syscall"
 )
 
 func getCaURL(host string, org string, tls bool) string {
@@ -96,19 +95,16 @@ func GenCerts(consulPath string) {
 	if lookErr != nil {
 		panic(lookErr)
 	}
-	// ENV for exec
-	env := os.Environ()
-
 	// The command to run
+	args:= "consul-template -config " + consulPath + " -once"
+	cmd := exec.Command(binary,"-c",args)
+	cmd.Stdin = os.Stdin
+	cmd.Stderr = os.Stderr
+	cmd.Stdout = os.Stdout
 
-	command := "consul-template -config " + consulPath + " -once"
+	err := cmd.Run()
 
-	fmt.Println("Running ... ",command)
-
-	args := []string{"bash","-c",command}
-
-	execErr := syscall.Exec(binary, args, env)
-	if execErr != nil {
-		panic(execErr)
+	if err!= nil {
+		panic(err)
 	}
 }

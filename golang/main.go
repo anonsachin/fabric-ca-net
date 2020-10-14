@@ -10,15 +10,18 @@ func main() {
 	//Setting up the flags
 	consulTempPath, basePath, consulTemp, tmpFile, tlsTmpFile, outDir, newOrg, vaultHost, role, configtxFile, msp, configtxReq := getFlags()
 
-	c := template.NewConsul(*tmpFile, *tlsTmpFile, *outDir, *role, *newOrg, *consulTemp, *vaultHost, *basePath)
+	// Getting New consul-template
+	ct := template.NewConsul(*tmpFile, *tlsTmpFile, *outDir, *role, *newOrg, *consulTemp, *vaultHost, *basePath)
+	// Getting New configtx.yaml
+	conf  := template.NewConfigTX(*configtxFile,*newOrg,*outDir)
 
 	// //Genrating the folder structure and templates
 	// ConsulTempGen(*tmpFile, *tlsTmpFile, *outDir, *role, *newOrg)
-	c.ConsulTempGen()
+	ct.ConsulTempGen()
 
 	// //  Genrating consul template
 	// configConsulTemplate(*consulTemp, *vaultHost, *basePath, *newOrg, *role)
-	c.ConfigConsulTemplate()
+	ct.ConfigConsulTemplate()
 
 	// Generate The MSP
 	if *msp {
@@ -40,7 +43,8 @@ func main() {
 
 	if *configtxReq {
 		fmt.Println("Generating the Configs")
-		configTemplate(*configtxFile, *newOrg, *outDir)
+		// configTemplate(*configtxFile, *newOrg, *outDir)
+		conf.ConfigTXTemplate()
 		generateOrgConfig(*newOrg)
 		fmt.Println("Completed generating the Configs ")
 	}

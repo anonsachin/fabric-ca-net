@@ -2,7 +2,7 @@ certs:
 	go build . && ./addorg && ./addorg -consul_template_path=consul-template-admin.hcl -role=admin -msp=false -configtx_req=true
 
 clean:
-	rm -r main configtx.yaml NewOrg.json consul-template-*.hcl NewOrg/
+	rm -r addorg configtx.yaml NewOrg.json consul-template-*.hcl NewOrg/
 
 pki:
 	docker run --rm --network host -v /home/sachin/ca-net/golang/collection/:/etc/postman/ \

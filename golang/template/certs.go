@@ -10,14 +10,14 @@ import (
 
 //ConsulTemp consul-template
 type ConsulTemp struct{
-	tempFile string
-	tlsTempFile string
+	tempFile string //Path to template file for MSP certs
+	tlsTempFile string //Path to template file for TLS certs
 	outDir string
 	role string
 	org string
-	tempPath string
-	vault string
-	basePath string
+	tempPath string //Path to consul-template config file
+	vaultHost string //Vault url like http://127.0.0.1:8200/
+	basePath string //Base path for the consul-template file for the full path to the template file like /home/sachin/ca-net/golang/NewOrg/admin/msp/cacerts/ca.cert.tpl
 }
 
 // NewConsul constructor
@@ -27,7 +27,7 @@ func NewConsul(tempFile string,
 	role string,
 	org string,
 	tempPath string,
-	vault string,
+	vaultHost string,
 	basePath string) *ConsulTemp{
 		return &ConsulTemp{
 			tempFile: tempFile,
@@ -36,7 +36,7 @@ func NewConsul(tempFile string,
 			role: role,
 			org: org,
 			tempPath: tempPath,
-			vault: vault,
+			vaultHost: vaultHost,
 			basePath: basePath,
 		}
 }
@@ -111,7 +111,7 @@ func (c *ConsulTemp) ConfigConsulTemplate() {
 	outFile := strings.ReplaceAll(fileAsString, "ORG", c.org)
 	outFile = strings.ReplaceAll(outFile, "BASEPATH", c.basePath)
 	outFile = strings.ReplaceAll(outFile, "ROLE", c.role)
-	outFile = strings.ReplaceAll(outFile, "VAULTHOST", c.vault)
+	outFile = strings.ReplaceAll(outFile, "VAULTHOST", c.vaultHost)
 
 	outBytes := []byte(outFile)
 

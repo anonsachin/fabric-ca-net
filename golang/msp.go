@@ -96,15 +96,15 @@ func GenCerts(consulPath string) {
 		panic(lookErr)
 	}
 	// The command to run
-	args:= "consul-template -config " + consulPath + " -once"
-	cmd := exec.Command(binary,"-c",args)
+	args := "consul-template -config " + consulPath + " -once"
+	cmd := exec.Command(binary, "-c", args)
 	cmd.Stdin = os.Stdin
 	cmd.Stderr = os.Stderr
 	cmd.Stdout = os.Stdout
 
 	err := cmd.Run()
 
-	if err!= nil {
+	if err != nil {
 		panic(err)
 	}
 }

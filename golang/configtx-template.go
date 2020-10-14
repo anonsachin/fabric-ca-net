@@ -38,15 +38,15 @@ func generateOrgConfig(org string) {
 	os.Setenv("FABRIC_CFG_PATH", os.Getenv("PWD"))
 
 	// The command to run
-	args:= "configtxgen -printOrg " + org + " > " + org + ".json"
-	cmd := exec.Command(binary,"-c",args)
+	args := "configtxgen -printOrg " + org + " > " + org + ".json"
+	cmd := exec.Command(binary, "-c", args)
 	cmd.Stdin = os.Stdin
 	cmd.Stderr = os.Stderr
 	cmd.Stdout = os.Stdout
 
 	err := cmd.Run()
 
-	if err!= nil {
+	if err != nil {
 		panic(err)
 	}
 
@@ -88,9 +88,8 @@ func configConsulTemplate(tempPath string, vault string, path string, org string
 	}
 }
 
-
-func Recov(){
-	if r := recover(); r!= nil {
-        fmt.Println("recovered from ", r)
-    }
+func Recov() {
+	if r := recover(); r != nil {
+		fmt.Println("recovered from ", r)
+	}
 }

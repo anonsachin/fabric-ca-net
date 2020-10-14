@@ -3,17 +3,22 @@ package main
 import (
 	"flag"
 	"fmt"
+	"addorg/template"
 )
 
 func main() {
 	//Setting up the flags
 	consulTempPath, basePath, consulTemp, tmpFile, tlsTmpFile, outDir, newOrg, vaultHost, role, configtxFile, msp, configtxReq := getFlags()
 
-	//Genrating the folder structure and templates
-	ConsulTempGen(*tmpFile, *tlsTmpFile, *outDir, *role, *newOrg)
+	c := template.NewConsul(*tmpFile, *tlsTmpFile, *outDir, *role, *newOrg, *consulTemp, *vaultHost, *basePath)
 
-	//  Genrating consul template
-	configConsulTemplate(*consulTemp, *vaultHost, *basePath, *newOrg, *role)
+	// //Genrating the folder structure and templates
+	// ConsulTempGen(*tmpFile, *tlsTmpFile, *outDir, *role, *newOrg)
+	c.ConsulTempGen()
+
+	// //  Genrating consul template
+	// configConsulTemplate(*consulTemp, *vaultHost, *basePath, *newOrg, *role)
+	c.ConfigConsulTemplate()
 
 	// Generate The MSP
 	if *msp {
@@ -23,7 +28,7 @@ func main() {
 	// Running the consul-template seperatly ass it stops execution after completion
 	sep := make(chan string)
 
-	go func(){
+	go func() {
 		fmt.Println("Generating template ==> ", *consulTempPath)
 		// Generate Certs from Template
 		GenCerts(*consulTempPath) // This will Stop the execution flow
@@ -40,9 +45,9 @@ func main() {
 		fmt.Println("Completed generating the Configs ")
 	}
 
-	status:= <-sep
-	
-	fmt.Printf("The completion Status of consul-template %v \n",status)
+	status := <-sep
+
+	fmt.Printf("The completion Status of consul-template %v \n", status)
 
 	// fmt.Printf("The completion Status of configtxgen %v \n",confStatus)
 

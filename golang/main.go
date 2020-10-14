@@ -8,10 +8,10 @@ import (
 
 func main() {
 	//Setting up the flags
-	consulTempPath, basePath, consulTemp, tmpFile, tlsTmpFile, outDir, newOrg, vaultHost, role, configtxFile, msp, configtxReq := getFlags()
+	consulTempPath, basePath, consulTemp, tmpFile, tlsTmpFile, outDir, newOrg, vaultHost, role, configtxFile, msp, configtxReq, baseDomain := getFlags()
 
-	// Getting New consul-template
-	ct := template.NewConsul(*tmpFile, *tlsTmpFile, *outDir, *role, *newOrg, *consulTemp, *vaultHost, *basePath)
+	// Getting New consul-template)
+	ct := template.NewConsul(*tmpFile, *tlsTmpFile, *outDir, *role, *newOrg, *consulTemp, *vaultHost, *basePath, *baseDomain)
 	// Getting New configtx.yaml
 	conf  := template.NewConfigTX(*configtxFile,*newOrg,*outDir)
 
@@ -19,7 +19,6 @@ func main() {
 	mspNew := generate.NewMSP(*vaultHost, *newOrg, *outDir)
 
 	// //Genrating the folder structure and templates
-	// ConsulTempGen(*tmpFile, *tlsTmpFile, *outDir, *role, *newOrg)
 	ct.ConsulTempGen()
 
 	// //  Genrating consul template

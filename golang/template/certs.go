@@ -18,6 +18,7 @@ type ConsulTemp struct{
 	tempPath string //Path to consul-template config file
 	vaultHost string //Vault url like http://127.0.0.1:8200/
 	basePath string //Base path for the consul-template file for the full path to the template file like /home/sachin/ca-net/golang/NewOrg/admin/msp/cacerts/ca.cert.tpl
+	baseDomain string //Base domain for the network
 }
 
 // NewConsul constructor
@@ -28,7 +29,8 @@ func NewConsul(tempFile string,
 	org string,
 	tempPath string,
 	vaultHost string,
-	basePath string) *ConsulTemp{
+	basePath string,
+	baseDomain string) *ConsulTemp{
 		return &ConsulTemp{
 			tempFile: tempFile,
 			tlsTempFile: tlsTempFile,
@@ -38,6 +40,7 @@ func NewConsul(tempFile string,
 			tempPath: tempPath,
 			vaultHost: vaultHost,
 			basePath: basePath,
+			baseDomain: baseDomain,
 		}
 }
 
@@ -78,18 +81,18 @@ func (c *ConsulTemp) ConsulTempGen( ) {
 		path = filepath.Join(c.outDir, c.role, destinations[i])
 		os.MkdirAll(path, os.ModePerm)
 		//The Output
-		fmt.Printf("The MSP output ==> \n %v:%v \n", path, templateGen(temp, certs[i], c.role, c.org))
+		fmt.Printf("The MSP output ==> \n %v:%v \n", path, templateGen(temp, certs[i], c.role, c.org, c.baseDomain))
 		//Writing the output to MSP
-		tempBytes := []byte(templateGen(temp, certs[i], c.role, c.org))
+		tempBytes := []byte(templateGen(temp, certs[i], c.role, c.org, c.baseDomain))
 		path = filepath.Join(path, destFile[i])
 		err := ioutil.WriteFile(path, tempBytes, 0644)
 		if err != nil {
 			_ = fmt.Errorf("Did not file %s", path)
 		}
 		//The Output
-		fmt.Printf("The TLS output ==> \n %v:%v \n", path, templateGen(tlsTemp, certs[i], c.role, c.org))
+		fmt.Printf("The TLS output ==> \n %v:%v \n", path, templateGen(tlsTemp, certs[i], c.role, c.org, c.baseDomain))
 		//Writing the output to TLS
-		tempBytes = []byte(templateGen(tlsTemp, certs[i], c.role, c.org))
+		tempBytes = []byte(templateGen(tlsTemp, certs[i], c.role, c.org, c.baseDomain))
 		path = filepath.Join(c.outDir, c.role, tlsDestinations)
 		path = filepath.Join(path, destFile[i])
 		err = ioutil.WriteFile(path, tempBytes, 0644)
@@ -123,10 +126,16 @@ func (c *ConsulTemp) ConfigConsulTemplate() {
 	}
 }
 
-func templateGen(a string, cert string, role string, org string) string {
+func templateGen(a string, cert string, role string, org string, baseDomain string) string {
 	a = strings.Replace(a, "ORG", org, 1)
 	a = strings.Replace(a, "ROLE", role, 1)
-	a = strings.Replace(a, "CNAME", role+".service.consul", 2)
+	var cname string
+	if role == "admin"{
+		cname = role
+	} else {
+		cname = role+"."+baseDomain
+	}
+	a = strings.Replace(a, "CNAME", cname, 2)
 	a = strings.Replace(a, "TTL", "24h", 1)
 	a = strings.Replace(a, "CERT", cert, 1)
 	return a

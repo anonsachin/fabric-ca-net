@@ -4,7 +4,7 @@ import (
 	"flag"
 )
 
-func getFlags() (*string, *string, *string, *string, *string, *string, *string, *string, *string, *string, *bool, *bool) {
+func getFlags() (*string, *string, *string, *string, *string, *string, *string, *string, *string, *string, *bool, *bool, *string) {
 	//Setting up the flags
 	consulTempPath := flag.String("consul_template_path", "consul-template-peer.hcl", "Used to get the path for consul-template")
 	basePath := flag.String("base_path", "/home/sachin/ca-net/golang", "Used to get the base path for consul-template")
@@ -18,8 +18,9 @@ func getFlags() (*string, *string, *string, *string, *string, *string, *string, 
 	configtxFile := flag.String("configtx", "templates/configtx-templat.yaml", "To Generate the config tx for new org")
 	msp := flag.Bool("msp", true, "To generate msp")
 	configtxReq := flag.Bool("configtx_req", false, "To Create the configtx.yaml")
+	baseDomain := flag.String("base_domain", "service.consul", "Used to get the base path for consul-template")
 	//Getting there values
 	flag.Parse()
 
-	return consulTempPath, basePath, consulTemp, tmpFile, tlsTmpFile, outDir, newOrg, vaultHost, role, configtxFile, msp, configtxReq
+	return consulTempPath, basePath, consulTemp, tmpFile, tlsTmpFile, outDir, newOrg, vaultHost, role, configtxFile, msp, configtxReq, baseDomain
 }

@@ -4,6 +4,7 @@ import (
 	"flag"
 	"fmt"
 	"addorg/template"
+	"addorg/generate"
 )
 
 func main() {
@@ -15,6 +16,9 @@ func main() {
 	// Getting New configtx.yaml
 	conf  := template.NewConfigTX(*configtxFile,*newOrg,*outDir)
 
+	// Getting New MSP
+	mspNew := generate.NewMSP(*vaultHost, *newOrg, *outDir)
+
 	// //Genrating the folder structure and templates
 	// ConsulTempGen(*tmpFile, *tlsTmpFile, *outDir, *role, *newOrg)
 	ct.ConsulTempGen()
@@ -25,7 +29,7 @@ func main() {
 
 	// Generate The MSP
 	if *msp {
-		CreateMSP(*vaultHost, *newOrg, *outDir)
+		mspNew.CreateMSP()
 	}
 
 	// Running the consul-template seperatly ass it stops execution after completion

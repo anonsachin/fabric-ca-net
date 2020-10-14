@@ -38,7 +38,10 @@ func main() {
 	go func() {
 		fmt.Println("Generating template ==> ", *consulTempPath)
 		// Generate Certs from Template
-		GenCerts(*consulTempPath) // This will Stop the execution flow
+		err:= execute(generate.Certs(*consulTempPath))
+		if err != nil {
+			panic(err)
+		}
 		sep <- "done"
 	}()
 
@@ -49,16 +52,16 @@ func main() {
 		fmt.Println("Generating the Configs")
 		// configTemplate(*configtxFile, *newOrg, *outDir)
 		conf.ConfigTXTemplate()
-		generateOrgConfig(*newOrg)
+		err:= execute(generate.OrgConfig(*newOrg))
+		if err != nil {
+			panic(err)
+		}
 		fmt.Println("Completed generating the Configs ")
 	}
 
 	status := <-sep
 
 	fmt.Printf("The completion Status of consul-template %v \n", status)
-
-	// fmt.Printf("The completion Status of configtxgen %v \n",confStatus)
-
 }
 
 func getFlags() (*string, *string, *string, *string, *string, *string, *string, *string, *string, *string, *bool, *bool) {
@@ -79,4 +82,21 @@ func getFlags() (*string, *string, *string, *string, *string, *string, *string, 
 	flag.Parse()
 
 	return consulTempPath, basePath, consulTemp, tmpFile, tlsTmpFile, outDir, newOrg, vaultHost, role, configtxFile, msp, configtxReq
+}
+
+type exec interface{
+	Run() error
+}
+
+func execute(cmd exec) error{
+	defer recov()
+	err  := cmd.Run()
+	return err
+}
+
+
+func recov() {
+	if r := recover(); r != nil {
+		fmt.Println("recovered from ", r)
+	}
 }

@@ -1,16 +1,12 @@
-package main
+package generate
 
 import (
 	"os"
 	"os/exec"
 )
 
-
-
-// GenCerts to genrate the certs
-func GenCerts(consulPath string) {
-	defer Recov()
-	// Getting configtxgen
+// Certs invokes consul template to create the certs
+func Certs(consulPath string) *exec.Cmd{
 	binary, lookErr := exec.LookPath("bash")
 	if lookErr != nil {
 		panic(lookErr)
@@ -22,9 +18,5 @@ func GenCerts(consulPath string) {
 	cmd.Stderr = os.Stderr
 	cmd.Stdout = os.Stdout
 
-	err := cmd.Run()
-
-	if err != nil {
-		panic(err)
-	}
+	return cmd
 }

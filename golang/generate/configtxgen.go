@@ -1,15 +1,12 @@
-package main
+package generate
 
 import (
-	"fmt"
-	"os"
 	"os/exec"
+	"os"
 )
 
-
-
-func generateOrgConfig(org string) {
-	defer Recov()
+// OrgConfig is to create the org config from the configtx and the msp
+func OrgConfig(org string) *exec.Cmd{
 	// Getting configtxgen
 	binary, lookErr := exec.LookPath("bash")
 	if lookErr != nil {
@@ -26,11 +23,7 @@ func generateOrgConfig(org string) {
 	cmd.Stderr = os.Stderr
 	cmd.Stdout = os.Stdout
 
-	err := cmd.Run()
-
-	if err != nil {
-		panic(err)
-	}
+	return cmd
 
 	// env := os.Environ()
 
@@ -45,10 +38,4 @@ func generateOrgConfig(org string) {
 	// if execErr != nil {
 	// 	panic(execErr)
 	// }
-}
-
-func Recov() {
-	if r := recover(); r != nil {
-		fmt.Println("recovered from ", r)
-	}
 }

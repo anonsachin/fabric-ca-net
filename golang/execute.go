@@ -4,16 +4,15 @@ import (
 	"fmt"
 )
 
-type exec interface{
+type exec interface {
 	Run() error
 }
 
-func execute(cmd exec) error{
+func execute(cmd exec) error {
 	defer recov()
-	err  := cmd.Run()
+	err := cmd.Run()
 	return err
 }
-
 
 func recov() {
 	if r := recover(); r != nil {

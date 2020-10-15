@@ -1,5 +1,19 @@
+build:
+	go build .
+
+msp-config:
+	./addorg -configtx_req=true
+
+admin-certs:
+	./addorg -consul_template_path=consul-template-admin.hcl -role=admin -msp=false -certs=true
+
+peer-certs:
+	./addorg -msp=false -certs=true
+
 certs:
-	go build . && ./addorg && ./addorg -consul_template_path=consul-template-admin.hcl -role=admin -msp=false -configtx_req=true
+	./addorg -msp=false -certs=true && ./addorg -consul_template_path=consul-template-admin.hcl -role=admin -msp=false -certs=true
+
+all: build msp-config certs
 
 clean:
 	rm -r addorg configtx.yaml NewOrg.json consul-template-*.hcl NewOrg/

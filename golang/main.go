@@ -8,7 +8,19 @@ import (
 
 func main() {
 	//Setting up the flags
-	consulTempPath, basePath, consulTemp, tmpFile, tlsTmpFile, outDir, newOrg, vaultHost, role, configtxFile, msp, configtxReq, baseDomain := getFlags()
+	// Base flags
+	// outDir, newOrg, vaultHost :=  baseFlags()
+
+	// // msp flags
+	// msp := mspFlags()
+
+	// // certs flags
+	// tmpFile, tlsTmpFile, baseDomain, role, consulTemp, basePath, consulTempOutPath := certsFlags()
+
+	// // OrgConfig flags
+	// configtx, configtxFile := orgConfigFlags()
+	
+	certs, consulTempOutPath, basePath, consulTemp, tmpFile, tlsTmpFile, outDir, newOrg, vaultHost, role, configtxFile, msp, configtx, baseDomain := getFlags()
 
 	// Getting New consul-template)
 	ct := template.NewConsul(*tmpFile, *tlsTmpFile, *outDir, *role, *newOrg, *consulTemp, *vaultHost, *basePath, *baseDomain)
@@ -18,12 +30,21 @@ func main() {
 	// Getting New MSP
 	mspNew := generate.NewMSP(*vaultHost, *newOrg, *outDir)
 
-	// //Genrating the folder structure and templates
+	if *certs {
+		// //Genrating the folder structure and templates
 	ct.ConsulTempGen()
 
 	// //  Genrating consul template
 	// configConsulTemplate(*consulTemp, *vaultHost, *basePath, *newOrg, *role)
 	ct.ConfigConsulTemplate()
+
+	fmt.Println("Generating template ==> ", *consulTempOutPath)
+		// Generate Certs from Template
+		err:= execute(generate.Certs(*consulTempOutPath))
+		if err != nil {
+			panic(err)
+		}
+	}
 
 	// Generate The MSP
 	if *msp {
@@ -31,22 +52,22 @@ func main() {
 	}
 
 	// Running the consul-template seperatly ass it stops execution after completion
-	sep := make(chan string)
+	// sep := make(chan string)
 
-	go func() {
-		fmt.Println("Generating template ==> ", *consulTempPath)
-		// Generate Certs from Template
-		err:= execute(generate.Certs(*consulTempPath))
-		if err != nil {
-			panic(err)
-		}
-		sep <- "done"
-	}()
+	// go func() {
+	// 	fmt.Println("Generating template ==> ", *consulTempOutPath)
+	// 	// Generate Certs from Template
+	// 	err:= execute(generate.Certs(*consulTempOutPath))
+	// 	if err != nil {
+	// 		panic(err)
+	// 	}
+	// 	sep <- "done"
+	// }()
 
 	// Generate the config JSON
-	fmt.Println("the Config status", *configtxReq)
+	fmt.Println("the Config status", *configtx)
 
-	if *configtxReq {
+	if *configtx {
 		fmt.Println("Generating the Configs")
 		// configTemplate(*configtxFile, *newOrg, *outDir)
 		conf.ConfigTXTemplate()
@@ -57,7 +78,7 @@ func main() {
 		fmt.Println("Completed generating the Configs ")
 	}
 
-	status := <-sep
+	// status := <-sep
 
-	fmt.Printf("The completion Status of consul-template %v \n", status)
+	// fmt.Printf("The completion Status of consul-template %v \n", status)
 }

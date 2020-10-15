@@ -22,20 +22,13 @@ func main() {
 	// OrgConfig flags
 	configtx, configtxFile := f.OrgConfigFlags()
 
-	// Getting New consul-template)
-	ct := template.NewConsul(*tmpFile, *tlsTmpFile, *outDir, *role, *newOrg, *consulTemp, *vaultHost, *basePath, *baseDomain)
-	// Getting New configtx.yaml
-	conf := template.NewConfigTX(*configtxFile, *newOrg, *outDir)
-
-	// Getting New MSP
-	mspNew := generate.NewMSP(*vaultHost, *newOrg, *outDir)
-
 	if *certs {
-		// //Genrating the folder structure and templates
+		// Getting New consul-template)
+		ct := template.NewConsul(*tmpFile, *tlsTmpFile, *outDir, *role, *newOrg, *consulTemp, *vaultHost, *basePath, *baseDomain)
+		//Genrating the folder structure and templates
 		ct.ConsulTempGen()
 
-		// //  Genrating consul template
-		// configConsulTemplate(*consulTemp, *vaultHost, *basePath, *newOrg, *role)
+		//  Genrating consul template
 		ct.ConfigConsulTemplate()
 
 		fmt.Println("Generating template ==> ", *consulTempOutPath)
@@ -48,6 +41,9 @@ func main() {
 
 	// Generate The MSP
 	if *msp {
+		// Getting New MSP
+		mspNew := generate.NewMSP(*vaultHost, *newOrg, *outDir)
+
 		mspNew.CreateMSP()
 	}
 
@@ -55,6 +51,9 @@ func main() {
 	fmt.Println("the Config status", *configtx)
 
 	if *configtx {
+		// Getting New configtx.yaml
+		conf := template.NewConfigTX(*configtxFile, *newOrg, *outDir)
+
 		fmt.Println("Generating the Configs")
 		// configTemplate(*configtxFile, *newOrg, *outDir)
 		conf.ConfigTXTemplate()

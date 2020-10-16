@@ -3,8 +3,8 @@ package main
 import (
 	"addorg/flags"
 	"addorg/generate"
-	"addorg/template"
 	"addorg/retrieve"
+	"addorg/template"
 	"fmt"
 )
 
@@ -69,7 +69,7 @@ func main() {
 	}
 
 	// Operate on Channel
-	if *channel{
+	if *channel {
 		fmt.Println("Getting the Channel Configs")
 		err := execute(retrieve.ChannelConfig())
 		if err != nil {

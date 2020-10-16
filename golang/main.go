@@ -4,6 +4,7 @@ import (
 	"addorg/flags"
 	"addorg/generate"
 	"addorg/template"
+	"addorg/retrieve"
 	"fmt"
 )
 
@@ -21,6 +22,9 @@ func main() {
 
 	// OrgConfig flags
 	configtx, configtxFile := f.OrgConfigFlags()
+
+	// Channel flgs
+	channel := f.ChannelFlags()
 
 	if *certs {
 		// Getting New consul-template)
@@ -62,5 +66,14 @@ func main() {
 			panic(err)
 		}
 		fmt.Println("Completed generating the Configs ")
+	}
+
+	// Operate on Channel
+	if *channel{
+		fmt.Println("Getting the Channel Configs")
+		err := execute(retrieve.ChannelConfig())
+		if err != nil {
+			panic(err)
+		}
 	}
 }

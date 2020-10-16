@@ -23,6 +23,8 @@ type Flags struct {
 
 	configtx     *bool
 	configtxFile *string
+
+	channel *bool
 }
 
 func GetFlags() *Flags {
@@ -51,6 +53,9 @@ func GetFlags() *Flags {
 	// To template the configtx.yaml
 	configtxFile := flag.String("configtx", "templates/configtx-templat.yaml", "To Generate the config tx for new org")
 
+	// Channel
+	channel := flag.Bool("channel", false, "To operate on a channel")
+
 	//Getting there values
 	flag.Parse()
 
@@ -72,6 +77,7 @@ func GetFlags() *Flags {
 
 		configtx:     configtx,
 		configtxFile: configtxFile,
+		channel: channel,
 	}
 }
 
@@ -95,4 +101,9 @@ func (f *Flags) OrgConfigFlags() (*bool, *string) {
 func (f *Flags) CertsFlags() (*string, *string, *string, *string, *string, *string, *string, *bool) {
 
 	return f.tmpFile, f.tlsTmpFile, f.baseDomain, f.role, f.consulTemp, f.basePath, f.consulTempOutPath, f.certs
+}
+
+func (f *Flags) ChannelFlags() *bool {
+
+	return f.channel
 }

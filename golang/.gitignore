@@ -4,3 +4,4 @@ configtx.yaml
 NewOrg.json
 consul-template-*
 addorg
+config_block.pb

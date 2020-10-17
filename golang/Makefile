@@ -19,7 +19,7 @@ get-channel:
 	./addorg -channel=true -msp=false
 
 clean:
-	rm -r addorg configtx.yaml NewOrg.json consul-template-*.hcl NewOrg/
+	rm -r addorg configtx.yaml config_block.pb NewOrg.json consul-template-*.hcl NewOrg/
 
 pki:
 	docker run --rm --network host -v /home/sachin/ca-net/golang/collection/:/etc/postman/ \

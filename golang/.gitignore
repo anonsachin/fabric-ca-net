@@ -5,3 +5,7 @@ NewOrg.json
 consul-template-*
 addorg
 config_block.pb
+config.json 
+modified_config.json
+config.pb 
+modified_config.pb

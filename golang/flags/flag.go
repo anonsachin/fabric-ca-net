@@ -25,6 +25,7 @@ type Flags struct {
 	configtxFile *string
 
 	channel *bool
+	configBlock *string
 }
 
 func GetFlags() *Flags {
@@ -55,6 +56,7 @@ func GetFlags() *Flags {
 
 	// Channel
 	channel := flag.Bool("channel", false, "To operate on a channel")
+	configBlock := flag.String("config_block","config_block.pb","Name of the block to be stored")
 
 	//Getting there values
 	flag.Parse()
@@ -78,6 +80,7 @@ func GetFlags() *Flags {
 		configtx:     configtx,
 		configtxFile: configtxFile,
 		channel: channel,
+		configBlock: configBlock,
 	}
 }
 
@@ -103,7 +106,7 @@ func (f *Flags) CertsFlags() (*string, *string, *string, *string, *string, *stri
 	return f.tmpFile, f.tlsTmpFile, f.baseDomain, f.role, f.consulTemp, f.basePath, f.consulTempOutPath, f.certs
 }
 
-func (f *Flags) ChannelFlags() *bool {
+func (f *Flags) ChannelFlags() (*bool, *string) {
 
-	return f.channel
+	return f.channel, f.configBlock
 }

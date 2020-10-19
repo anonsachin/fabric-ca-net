@@ -1,6 +1,8 @@
 package main
 
 import (
+	"addorg/convert"
+	"addorg/env"
 	"addorg/flags"
 	"addorg/generate"
 	"addorg/retrieve"
@@ -24,7 +26,7 @@ func main() {
 	configtx, configtxFile := f.OrgConfigFlags()
 
 	// Channel flgs
-	channel := f.ChannelFlags()
+	channel, configBlock := f.ChannelFlags()
 
 	if *certs {
 		// Getting New consul-template)
@@ -70,8 +72,30 @@ func main() {
 
 	// Operate on Channel
 	if *channel {
-		fmt.Println("Getting the Channel Configs")
-		err := execute(retrieve.ChannelConfig())
+		fmt.Println("Setting the peer context")
+		context := env.DefaultOrgEnv()
+		fmt.Println("Getting the Channel Configs ==> ", *configBlock)
+		err := execute(retrieve.ChannelConfig(*configBlock, context))
+		if err != nil {
+			panic(err)
+		}
+		fmt.Println("Converting the Channel Configs block to json and extracting required values")
+		err = execute(convert.ChannelConfig(*configBlock))
+		if err != nil {
+			panic(err)
+		}
+		fmt.Println("Creating the new channel configs")
+		err = execute(generate.NewChannelConfig(*newOrg))
+		if err != nil {
+			panic(err)
+		}
+		fmt.Println("Converting old config json to proto")
+		err = execute(convert.OldConfig())
+		if err != nil {
+			panic(err)
+		}
+		fmt.Println("Converting new config json to proto")
+		err = execute(convert.NewConfig())
 		if err != nil {
 			panic(err)
 		}

@@ -99,5 +99,35 @@ func main() {
 		if err != nil {
 			panic(err)
 		}
+		// Updated proto with diff of modified and old config with links to orgs in channel
+		fmt.Println("Updated proto with diff of modified and old config with links to orgs in channel")
+		err = execute(generate.NewChannelUpdate(context))
+		if err != nil {
+			panic(err)
+		}
+		// convert update proto to json
+		fmt.Println("Converting new update proto to json")
+		err = execute(convert.UpdateConfig())
+		if err != nil {
+			panic(err)
+		}
+		// Envelope to create a transaction
+		fmt.Println("Creating an envelope to create a transaction")
+		err = execute(generate.Envelope(context))
+		if err != nil {
+			panic(err)
+		}
+		// Envelope proto to json
+		fmt.Println("Creating an envelope proto to json")
+		err = execute(convert.Envelope())
+		if err != nil {
+			panic(err)
+		}
+		// Submit update transaction
+		fmt.Println("Submitting update transaction")
+		err = execute(generate.ChannelUpdateTX(context))
+		if err != nil {
+			panic(err)
+		}
 	}
 }

@@ -100,6 +100,14 @@ func (c *ConsulTemp) ConsulTempGen( ) {
 			_ = fmt.Errorf("Did not create file at %s", path)
 		}
 	}
+	// / Read config.yaml file
+	conf, err := ioutil.ReadFile("config.yaml")
+	if err != nil {
+		_ = fmt.Errorf("Did not file %s", path)
+	}
+	// Writing the config file
+	path = filepath.Join(c.outDir, c.role, "msp/config.yaml")
+	err = ioutil.WriteFile(path,conf, 0644)
 }
 
 //ConfigConsulTemplate genreting Consul template for a role

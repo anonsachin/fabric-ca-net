@@ -7,7 +7,7 @@ import (
 )
 
 
-// NewChannelUpdate to create the update proto with links to orgs in channel
+// Envelope to create a transaction from the config diff
 func Envelope(c env.ENV) *exec.Cmd{
 	// Getting configtxgen
 	binary, lookErr := exec.LookPath("bash")

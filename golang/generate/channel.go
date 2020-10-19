@@ -6,7 +6,7 @@ import (
 )
 
 
-
+// NewChannelConfig Updating the channel config
 func NewChannelConfig(newOrg string) *exec.Cmd{
 	// Getting configtxgen
 	binary, lookErr := exec.LookPath("bash")

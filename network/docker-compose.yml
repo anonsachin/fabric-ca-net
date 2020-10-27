@@ -87,7 +87,7 @@ services:
                 - CORE_PEER_TLS_KEY_FILE=/etc/hyperledger/fabric/tls/server.key
                 - CORE_PEER_TLS_ROOTCERT_FILE=/etc/hyperledger/fabric/tls/ca.crt
                 - ORDERER_CA_CERT=/etc/hyperledger/fabric/orderer-ca.cert
-            working_dir: /opt/gopath/src/github.com/hyperledger/fabric/peer
+            working_dir: /opt/gopath/src/github.com/hyperledger/fabric/peer/scripts
             command: /bin/bash
             volumes:
                 - /var/run/:/host/var/run/

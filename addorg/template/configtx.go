@@ -2,23 +2,24 @@ package template
 
 import (
 	"fmt"
-	"strings"
 	"io/ioutil"
+	"path"
+	"strings"
 )
 
 //ConfigTX configtx.yaml
-type ConfigTX struct{
+type ConfigTX struct {
 	tempPath string // Path to configtx.yaml template
-	org string
-	path string // Path to MSP dir of the org
+	org      string
+	path     string // Path to MSP dir of the org
 }
 
 // NewConfigTX new context for configtx.yaml for a new org
-func NewConfigTX(tempPath string, org string, path string) *ConfigTX{
+func NewConfigTX(tempPath string, org string, path string) *ConfigTX {
 	return &ConfigTX{
 		tempPath: tempPath,
-		org: org,
-		path: path,
+		org:      org,
+		path:     path,
 	}
 }
 
@@ -31,8 +32,10 @@ func (c *ConfigTX) ConfigTXTemplate() {
 
 	fileAsString := string(file)
 
+	outPath := path.Join(c.path, "/")
+
 	outFile := strings.ReplaceAll(fileAsString, "ORG", c.org)
-	outFile = strings.ReplaceAll(outFile, "PATH", c.path)
+	outFile = strings.ReplaceAll(outFile, "PATH", outPath)
 	outBytes := []byte(outFile)
 	err = ioutil.WriteFile("configtx.yaml", outBytes, 0644)
 

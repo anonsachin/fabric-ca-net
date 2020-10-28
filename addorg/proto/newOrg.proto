@@ -1,0 +1,17 @@
+syntax = "proto3";
+
+package server;
+
+option go_package = "/server";
+
+message Msp {
+    string vaultHost = 1;
+    string org = 2;
+    string outDir = 3;
+}
+
+message Void {}
+
+service NewOrg {
+    rpc CreateMSP(Msp) returns (Void) {}
+}

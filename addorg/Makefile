@@ -1,5 +1,8 @@
-build:
-	go build .
+install:
+	GOBIN=${PWD} go install ./cmd/addorg
+
+install-server:
+	GOBIN=${PWD} go install ./cmd/server
 
 msp-config:
 	./addorg -configtx_req=true
@@ -22,7 +25,7 @@ clean:
 	rm -r addorg configtx.yaml config_block.pb NewOrg.json consul-template-*.hcl config.json modified_config.json NewOrg/
 
 pki:
-	docker run --rm --network host -v /home/sachin/ca-net/golang/collection/:/etc/postman/ \
+	docker run --rm --network host -v /home/sachin/ca-net/addorg/collection/:/etc/postman/ \
 	 -t postman/newman run /etc/postman/vault-setup-New-Org.postman_collection.json
 
 cli-msp:

@@ -1,6 +1,7 @@
 package generate
 
 import (
+	"fmt"
 	"os/exec"
 	"os"
 )
@@ -13,29 +14,19 @@ func OrgConfig(org string) *exec.Cmd{
 		panic(lookErr)
 	}
 
-	//Setting the PATH
-	os.Setenv("FABRIC_CFG_PATH", os.Getenv("PWD"))
-
 	// The command to run
-	args := "configtxgen -printOrg " + org + " > " + org + ".json"
+	args := fmt.Sprintf("configtxgen -printOrg %s > %s/%s.json", org,org,org) //"configtxgen -printOrg " + org + " > " + org + ".json"
 	cmd := exec.Command(binary, "-c", args)
 	cmd.Stdin = os.Stdin
 	cmd.Stderr = os.Stderr
 	cmd.Stdout = os.Stdout
 
+	//Setting the PATH
+	path := fmt.Sprintf("PATH=%s",os.Getenv("PATH"))
+	fabricPath := fmt.Sprintf("FABRIC_CFG_PATH=%s",os.Getenv("PWD"))
+
+	cmd.Env = []string{path,fabricPath}
+
 	return cmd
 
-	// env := os.Environ()
-
-	// // The command to run
-	// command := "configtxgen -printOrg " + org + " > " + org + ".json"
-	// fmt.Println("Exec ==> ",command)
-
-	// args := []string{"bash", "-c", command}
-
-	// execErr := syscall.Exec(binary, args, env)
-	// fmt.Println("Success exec ==> ",command)
-	// if execErr != nil {
-	// 	panic(execErr)
-	// }
 }

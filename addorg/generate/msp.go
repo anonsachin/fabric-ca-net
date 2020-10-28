@@ -28,7 +28,7 @@ func NewMSP(vaultHost string,
 	}
 
 // CreateMSP gets the ca's and stores them in the right place
-func (m *MSP) CreateMSP() {
+func (m *MSP) CreateMSP() error {
 	//Getting the MSP's
 	mspCa, tlsCa := getCaCert(m.vaultHost, m.org)
 	//Creating the Dirctory of MSP CA
@@ -38,7 +38,7 @@ func (m *MSP) CreateMSP() {
 	path = filepath.Join(path, "ca.pem")
 	err := ioutil.WriteFile(path, mspCa, 0644)
 	if err != nil {
-		_ = fmt.Errorf("Did not file %s", path)
+		return fmt.Errorf("Did not file %s", path)
 	}
 	//Creating the Dirctory of TLS CA
 	path = filepath.Join(m.outDir, "msp/tlscacerts")
@@ -47,16 +47,21 @@ func (m *MSP) CreateMSP() {
 	path = filepath.Join(path, "ca.pem")
 	err = ioutil.WriteFile(path, tlsCa, 0644)
 	if err != nil {
-		_ = fmt.Errorf("Did not file %s", path)
+		return fmt.Errorf("Did not file %s", path)
 	}
 	// Read config.yaml file
 	conf, err := ioutil.ReadFile("config.yaml")
 	if err != nil {
-		_ = fmt.Errorf("Did not file %s", path)
+		return fmt.Errorf("Did not read file %s", path)
 	}
 	// Writing the config file
 	path = filepath.Join(m.outDir, "msp/config.yaml")
 	err = ioutil.WriteFile(path,conf, 0644)
+	if err != nil {
+		return fmt.Errorf("Could not write config.yaml ==> %v",err)
+	}
+
+	return nil
 
 }
 

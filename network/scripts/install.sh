@@ -5,8 +5,8 @@
 installChannel
 anchorPeerUpdate orgMSP
 
-. $PWD/chaincode.sh
+# . $PWD/chaincode.sh
 
-prepareChaincode "consumption:7054"
-installAndApprove
-commitChanicode
+# prepareChaincode "consumption:7054"
+# installAndApprove
+# commitChanicode

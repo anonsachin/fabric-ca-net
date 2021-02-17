@@ -7,7 +7,7 @@ fi
 if [ -d channel-artifacts ]; then
 	sudo rm -r channel-artifacts
 fi
-
-pushd ./scripts/
- ./cleanup.sh
-popd
+# This is for chaincode
+# pushd ./scripts/
+#  ./cleanup.sh
+# popd

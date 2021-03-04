@@ -6,6 +6,7 @@ if [ ! -d certs ]; then
 	mkdir -p certs/ordererorg/orderer
 fi
 
+# The creation of the msp definition of the org
 function msp(){
 export ORG=$1
 export ORG_PATH=$PWD/certs/$ORG
@@ -38,6 +39,7 @@ echo 'NodeOUs:
     OrganizationalUnitIdentifier: orderer' > $ORG_PATH/msp/config.yaml
 }
 
+# Generating the file structure and certificate templates for the roles
 function role() {
 export ORG=$1
 export ROLE=$2
@@ -102,6 +104,8 @@ echo "{{ with secret \"${ORG}TLSCA/issue/${ROLE}\" \"common_name=${CNAME}\" \"tt
 
 }
 
+#clean the templates for the peer process to run
+# peer container not running with templates present
 function clean(){
   rm /home/sachin/ca-net/network/certs/peerorg/peer/msp/cacerts/ca.crt.tpl
   rm /home/sachin/ca-net/network/certs/peerorg/peer/msp/signcerts/agent.crt.tpl

@@ -1,10 +1,12 @@
 Docker Network With Fabric CA's for tls and identities
 ======================================================
 
-simple network with one ca for tls and two ca's for orderer and peer (using external peer -[peer-external-builder](https://github.com/sachin-ngpws/peer-external-builder.git) )
+* To bring up the network run `make up`
+* to bring down `sudo make clean`
+* Look into the Makefile for more details, it's just an easier way to run all the scripts and commands.
 
-commands for channel creation and join
---------------------------------------
+commands for channel creation and join that are in the shell script
+-------------------------------------------------------------------
 * creating channel block
 ```
     export CHANNEL_NAME="testchannel"

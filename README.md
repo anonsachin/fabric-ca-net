@@ -1,6 +1,10 @@
 Fabric network with Vault PKI engine for PKI
 ============================================
 
+Requirements
+------------
+consul-template version 0.19.5 is used choose for operating system of your choice - https://releases.hashicorp.com/consul-template/0.19.5/
+
 Three segments 
 --------------
 
